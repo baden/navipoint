@@ -10,8 +10,8 @@ post(Body, #{skey := Skey}) ->
     repr(parsebingps(Skey, Body)).
 
 repr({ok, Last}) ->
-    % Dynamic = [{lastping, unixtime()}, {csq, Csq}] ++ navipoint_bingps:point_to_doc(Last),
-    #{dt := DT} = Dynamic = navipoint_bingps:point_to_doc(Last),
+    % Dynamic = [{lastping, unixtime()}, {csq, Csq}] ++ navipoint:point_to_doc(Last),
+    #{dt := DT} = Dynamic = navipoint:point_to_doc(Last),
     TRESHOLD = 1356991200,        % 01/01/2013
 
     if
@@ -42,7 +42,7 @@ parsebingps(Skey, Body) ->
 
     <<Data:Size/binary, CRC:16/little-unsigned-integer>> = Body,
 
-    case navipoint_bingps:crc(Data) of
+    case navipoint:crc(Data) of
         CRC ->
             % spec_log(Skey, "[~p] CRC OK. parsedata start", [Skey]),
             parsedata(Skey, Data);
