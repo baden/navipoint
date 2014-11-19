@@ -8,7 +8,7 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ test1 ].
+all() -> [ test1, hwid, balance ].
 
 % -define(POINT_PORT, 8981).
 
@@ -27,25 +27,59 @@ end_per_suite(Config) ->
     [application:stop(Module) || Module <- lists:reverse(Modules)],
     % application:unload(lager), application:unload(navidb), application:unload(naviccapi),
     application:unload(navipoint),
-    meck:unload(),
     error_logger:tty(true),
     ok.
 
-init_per_testcase(Case, Config) ->
-    ct:pal("init_per_testcase(~p, ~p)", [Case, Config]),
-    Config.
+init_per_testcase(_Case, Config) ->
+    Imei = helper:random_string(),
+    [{imei, Imei} | Config].
 
-end_per_testcase(Case, Config) ->
-    ct:pal("end_per_testcase(~p, ~p)", [Case, Config]),
+end_per_testcase(_Case, Config) ->
     Config.
 
 test1(Config) ->
-    ct:pal("test1(~p)", [Config]),
-    % {ok, ConnPid} = gun:open("localhost", 8982, [{retry, 0}, {type, tcp}]),
+    Imei = ?config(imei, Config),
 
-    % Out of REST API
-    % {200, _, _} = apiget("/1.0/info"),
+    Text = helper:random_string(),
+    % OnMsg = "/addlog?imei=fake-01&csq=10&vout=12580&vin=3810&text=" ++ url_encode(Text),
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", #{text => Text}),
+
+    % {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", #{text => Text, csq => <<"assa">>, vin => 3810, vout => 12580}),
+    % ct:pal("Res = ~p", [Res]),
+
+    Skey = base64:encode(Imei),
+    [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ct:pal("Doc = ~p", [Doc]),
+
     ok.
 
-random_string() ->
-    base64:encode(crypto:rand_bytes(16)).
+hwid(Config) ->
+    Imei = ?config(imei, Config),
+    Text = "Test message. Version line HWID:<b>3081</b> SWID:<b>302E</b>",
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", #{text => Text}),
+
+    Skey = base64:encode(Imei),
+    % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    % ?assertMatch(#{system := Skey, text := Text}, Doc),
+    System = navidb:get(systems, {'_id', Skey}),
+    ct:pal("System = ~p", [System]),
+    ?assertMatch(#{hwid := <<"3081">>, swid := <<"302E">>}, System),
+    ok.
+
+balance(Config) ->
+    Imei = ?config(imei, Config),
+    Payload = #{
+        mtype => "balance",
+        value => 20,
+        text  => "Balance is 20"
+    },
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", Payload),
+
+    Skey = base64:encode(Imei),
+    % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    % ?assertMatch(#{system := Skey, text := Text}, Doc),
+    System = navidb:get(systems, {'_id', Skey}),
+    ct:pal("System = ~p", [System]),
+    ?assertMatch(#{balance := #{value := 20}}, System),
+    ok.

@@ -13,3 +13,4 @@ logs/
 test/*.beam
 test/Mnesia*
 Mnesia*
+.erlang.mk.packages.*

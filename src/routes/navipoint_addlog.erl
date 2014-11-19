@@ -1,12 +1,13 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_addlog).
 
--export([init/2, get/1, post/2]).
+-export([init/2, get/1]).
 
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
-get(#{skey := Skey, params := Params}) ->
+get(#{skey := Skey, params := Params} = _Query) ->
+    % ct:pal("Query = ~p", [Query]),
     Text = maps:get(<<"text">>, Params, undefined),
     MType = maps:get(<<"mtype">>, Params, undefined),
     addlog(Skey, MType, Text, Params).
@@ -49,8 +50,8 @@ addlog(Skey, _MType, Text, _Params) ->
     end,
     #{response => <<"ADDLOG: OK\r\n">>}.
 
-post(_Body, _Query) ->
-    #{response => <<"OK\r\n">>}.
+% post(_Body, _Query) ->
+%     #{response => <<"OK\r\n">>}.
 
 % unixtime() -> timer:now_diff(now(), {0,0,0}) div 1000000.
 unixtime() ->

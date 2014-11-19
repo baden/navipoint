@@ -1,66 +1,33 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_handler).
 
-% -behaviour(cowboy_sub_protocol).
-
 -export([
         upgrade/6
     ]).
 
 -export([terminate/3]).
 
-% -export([
-%     % getSystem/1,
-%     % getOptions/1,
-%     % getImei/1
-%     ]).
-
-% -type proplist() :: list({term(), term()}).
-
-% -record(state, {
-%                 method      :: binary(),
-%                 body        :: proplist(),
-%                 params      :: proplist(),
-%                 querystring :: proplist(),
-%                 options     :: proplist(),
-%                 handler     :: module(),
-%                 imei        :: binary(),
-%                 skey        :: binary(),
-%                 dynamic     :: map(),
-%                 system      :: proplist() | atom()
-%     }).
-
-% getSystem(#state{system = System}) -> System.
-% getOptions(#state{options = Options}) -> Options.
-% getImei(#state{imei = Imei}) -> Imei.
-
 upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
-% upgrade(Req, Env, Handler, Opts) ->
     folsom_metrics:notify(point, {inc, 1}),
     folsom_metrics:notify(point_meter, 1),
     Begin = folsom_metrics:histogram_timed_begin(point_duration),
 
     % Start = now(),
-    % Params = cowboy_req:bindings(Req),
-    % Method = cowboy_req:method(Req),
-    % Query = cowboy_req:parse_qs(Req),
-
     Method = cowboy_req:method(Req),
     % Headers = maps:from_list(cowboy_req:headers(Req)),
     Params = maps:from_list(cowboy_req:bindings(Req)),
     Query  = maps:from_list(cowboy_req:parse_qs(Req)),
 
-    Csq =
-        try
-            erlang:binary_to_integer(maps:get(<<"csq">>, Query, <<"0">>))
-        catch
-            error:badarg -> 0
-        end,
+    Csq  = int_value(csq, Query),
+    Vin  = int_value(vin, Query, -1),
+    Vout = int_value(vout, Query, -1),
 
     DynamicInit = #{
         lastping => unixtime(),
         method   => Method,
-        csq      => Csq
+        csq      => Csq,
+        vin      => Vin,
+        vout     => Vout
     },
 
     % Все входящие сообщения должны содержать параметр imei. Иначе отбой соединения
@@ -153,3 +120,16 @@ cors(Req) ->
 unixtime() ->
         {A, B, _} = os:timestamp(),
         (A * 1000000) + B.
+
+int_value(Key, Query) ->
+    int_value(Key, Query, 0).
+
+int_value(Key, Query, Default) when is_atom(Key) ->
+    int_value(atom_to_binary(Key, latin1), Query, Default);
+
+int_value(Key, Query, Default) ->
+    try
+        erlang:binary_to_integer(maps:get(Key, Query))
+    catch
+        _:_ -> Default
+    end.

@@ -2,8 +2,9 @@
 {application, navipoint, [
     {description, "POINT application library for NaviCC project"},
     {vsn, "0.0.1"},
+    {modules, []},
     {registered, [navipoint_sup]},
-    {applications, [kernel, stdlib, cowboy, folsom]},
+    {applications, [kernel, stdlib, cowboy, folsom, navidb]},
     {mod, {navipoint_app, []}},
     {env, [
         {http_listen_port, 8981},
