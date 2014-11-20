@@ -52,7 +52,7 @@ parsebingps(Skey, Body) ->
     end.
 
 parsedata(Skey, Data) ->
-    {ok, Parsed, Last} = navipoing_bingps:parse(Data),
+    {ok, Parsed, Last} = navipoint:parse(Data),
 
     Keys = lists:sort(dict:fetch_keys(Parsed)),
 

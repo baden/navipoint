@@ -1,14 +1,10 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_config).
 
--export([init/2, get/1, post/2]).
+-export([init/2, post/2]).
 
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
-
-get(_) ->
-    RespBody = <<"CONFIG: OK\r\n">>,
-    #{response => RespBody}.
 
 post(Body, #{skey := Skey, params := Query}) ->
     Lines = string:tokens(binary_to_list(Body), "\r\n"),
@@ -18,7 +14,7 @@ post(Body, #{skey := Skey, params := Query}) ->
                 ["END"] ->
                     Acc;
                 [KEY, TYPE, VALUE, DEFAULT] ->
-                    Key = binary:replace(list_to_binary(KEY), <<$.>>, <<$#>>, [global]),
+                    Key = list_to_binary(KEY),
                     Value = binary:replace(list_to_binary(VALUE), <<"\"">>, <<"">>, [global]),
                     Default = binary:replace(list_to_binary(DEFAULT), <<"\"">>, <<"">>, [global]),
 
@@ -29,7 +25,6 @@ post(Body, #{skey := Skey, params := Query}) ->
                     },
                     maps:put(Key, Element, Acc)
             end
-
         end,
         #{},
         Lines

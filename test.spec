@@ -1,3 +1,3 @@
 {logdir, ["logs"]}.
 {suites, ["test"], all}.
-{cover, "cover.spec"}.
+{cover, "test/cover.spec"}.

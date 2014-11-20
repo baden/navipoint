@@ -7,7 +7,6 @@ init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
 get(#{skey := Skey, params := Params} = _Query) ->
-    % ct:pal("Query = ~p", [Query]),
     Text = maps:get(<<"text">>, Params, undefined),
     MType = maps:get(<<"mtype">>, Params, undefined),
     addlog(Skey, MType, Text, Params).
@@ -29,7 +28,6 @@ addlog(Skey, <<"balance">>, _Text, Params) ->
 
 addlog(Skey, _MType, Text, _Params) ->
     Document = #{
-        % '_id', Skey,
         'system' => Skey,
         'dt'     => unixtime(),
         'text'   => Text

@@ -8,7 +8,7 @@ ERLC_OPTS ?= +debug_info +warn_export_all +warn_export_vars \
 	+warn_shadow_vars +warn_obsolete_guard +warn_missing_spec \
 	+'{parse_transform, lager_transform}'
 # COMPILE_FIRST = cowboy_middleware cowboy_sub_protocol
-CT_OPTS += -cover test/cover.spec -erl_args -config test/test.config
+CT_OPTS += -spec test.spec -cover test/cover.spec -erl_args -config test/test.config
 PLT_APPS = crypto public_key ssl
 
 # Dependencies.

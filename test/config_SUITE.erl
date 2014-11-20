@@ -8,12 +8,11 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ test1 ].
+all() -> [ save, phone ].
 
 % -define(POINT_PORT, 8981).
 
 init_per_suite(Config) ->
-    ct:pal("---------------- init_per_suite(~p)", [Config]),
     error_logger:tty(false),
 
     {ok, Modules} = application:ensure_all_started(navipoint),
@@ -22,7 +21,6 @@ init_per_suite(Config) ->
     [{modules, Modules ++ GunModules} | Config].
 
 end_per_suite(Config) ->
-    ct:pal("end_per_suite(~p)", [Config]),
     Modules = ?config(modules, Config),
     [application:stop(Module) || Module <- lists:reverse(Modules)],
     % application:unload(lager), application:unload(navidb), application:unload(naviccapi),
@@ -37,31 +35,43 @@ init_per_testcase(_Case, Config) ->
 end_per_testcase(_Case, Config) ->
     Config.
 
-test1(Config) ->
+save(Config) ->
     Imei = ?config(imei, Config),
     Body = lists:flatten([
         "gps.T0.2    INT 10  10\n",
-        "gps.T0.3    INT 10  10\n",
-        "akkum.U.1   INT 907 907\n",
         "akkum.U.0   INT 862 862\n",
-        "akkum.U.3   INT 984 984\n",
-        "akkum.U.2   INT 911 911\n",
-        "akkum.U.4   INT 911 911\n",
-        "gps.V0.2    INT 10  10\n",
-        "gps.V0.3    INT 20  20\n",
-        "gps.V0.0    INT 5   5\n",
-        "gps.V0.1    INT 20  20\n",
-        "gps.T4.0    INT 720 721\n",
-        "gps.T4.1    INT 240 240\n",
-        "gps.T4.2    INT 720 720\n",
-        "gps.AOFF.0  INT 10 10\n",
+        "akkum.U.1   INT 907 907\n",
         "gsm.server  STR32 \"point.new.navi.cc\" \"map.navi.cc\"\n",
+        "END\n"
+    ]),
+
+    {200, _, <<"CONFIG: OK\r\n">>} = helper:post(Imei, "/config", #{cmd => <<"save">>}, Body),
+
+    Skey = base64:encode(Imei),
+    #{data := Params} = navidb:get(params, {id, Skey}),
+    ?assertMatch(#{
+        'gps.T0.2'   := #{default := <<"10">>, type := <<"INT">>, value := <<"10">>},
+        'akkum.U.0'  := #{default := <<"862">>,type := <<"INT">>, value := <<"862">>},
+        'akkum.U.1'  := #{default := <<"907">>,type := <<"INT">>, value := <<"907">>},
+        'gsm.server' := #{default := <<"map.navi.cc">>, type := <<"STR32">>, value := <<"point.new.navi.cc">>}
+    }, Params),
+
+    ok.
+
+phone(Config) ->
+    Imei = ?config(imei, Config),
+    Body = lists:flatten([
+        "gps.T0.2    INT 10  10\n",
         "END\n"
     ]),
 
     {200, _, <<"CONFIG: OK\r\n">>} = helper:post(Imei, "/config", #{cmd => <<"save">>, phone => <<"+380679332332">>}, Body),
 
     Skey = base64:encode(Imei),
-    Params = navidb:get(params, {'_id', Skey}),
-    ct:pal("Params = ~p", [Params]),
+    #{data := Params} = navidb:get(params, {id, Skey}),
+    ?assertMatch(#{
+        'gps.T0.2'   := #{default := <<"10">>, type := <<"INT">>, value := <<"10">>}
+    }, Params),
+    #{phone := <<"+380679332332">>} = navidb:get(systems, Skey),
+
     ok.

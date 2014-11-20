@@ -13,7 +13,6 @@ all() -> [ test1, hwid, balance ].
 % -define(POINT_PORT, 8981).
 
 init_per_suite(Config) ->
-    ct:pal("---------------- init_per_suite(~p)", [Config]),
     error_logger:tty(false),
 
     {ok, Modules} = application:ensure_all_started(navipoint),
@@ -22,7 +21,6 @@ init_per_suite(Config) ->
     [{modules, Modules ++ GunModules} | Config].
 
 end_per_suite(Config) ->
-    ct:pal("end_per_suite(~p)", [Config]),
     Modules = ?config(modules, Config),
     [application:stop(Module) || Module <- lists:reverse(Modules)],
     % application:unload(lager), application:unload(navidb), application:unload(naviccapi),
@@ -41,17 +39,11 @@ test1(Config) ->
     Imei = ?config(imei, Config),
 
     Text = helper:random_string(),
-    % OnMsg = "/addlog?imei=fake-01&csq=10&vout=12580&vin=3810&text=" ++ url_encode(Text),
     {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", #{text => Text}),
-
-    % {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Imei, "/addlog", #{text => Text, csq => <<"assa">>, vin => 3810, vout => 12580}),
-    % ct:pal("Res = ~p", [Res]),
 
     Skey = base64:encode(Imei),
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     ?assertMatch(#{system := Skey, text := Text}, Doc),
-    ct:pal("Doc = ~p", [Doc]),
-
     ok.
 
 hwid(Config) ->
@@ -62,8 +54,7 @@ hwid(Config) ->
     Skey = base64:encode(Imei),
     % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     % ?assertMatch(#{system := Skey, text := Text}, Doc),
-    System = navidb:get(systems, {'_id', Skey}),
-    ct:pal("System = ~p", [System]),
+    System = navidb:get(systems, {id, Skey}),
     ?assertMatch(#{hwid := <<"3081">>, swid := <<"302E">>}, System),
     ok.
 
@@ -79,7 +70,6 @@ balance(Config) ->
     Skey = base64:encode(Imei),
     % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     % ?assertMatch(#{system := Skey, text := Text}, Doc),
-    System = navidb:get(systems, {'_id', Skey}),
-    ct:pal("System = ~p", [System]),
+    System = navidb:get(systems, {id, Skey}),
     ?assertMatch(#{balance := #{value := 20}}, System),
     ok.
