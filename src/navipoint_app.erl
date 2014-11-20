@@ -46,17 +46,6 @@ start_phase(listen, _Type, _Args) ->
                       [{env,
                         [{dispatch, cowboy_router:compile(Dispatch)}]}]),
 
-    % TODO: Метрики
-    ok = folsom_metrics:new_counter(point),
-    ok = folsom_metrics:new_meter(point_meter),
-    ok = folsom_metrics:new_counter(point_error),
-    ok = folsom_metrics:new_counter(point_error_crc),
-    ok = folsom_metrics:new_counter(point_error_data),
-    % ok = folsom_metrics:new_histogram(point_duration), % Статистика примерно по последним 1028 запросам
-    % ok = folsom_metrics:new_histogram(point_duration, slide_uniform), % Статистика за последнюю минуту
-    ok = folsom_metrics:new_histogram(point_duration, slide_sorted), % Статистика точно по последним 1028 запросам
-    % ok = folsom_metrics:new_histogram(point_duration2),
-    % ok = folsom_metrics:new_duration(point_duration),
     ok.
 
 config(Key, Default) ->

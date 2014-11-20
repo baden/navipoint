@@ -2,9 +2,10 @@
 {application, navipoint, [
     {description, "POINT application library for NaviCC project"},
     {vsn, "0.0.1"},
+    {id, "git"},
     {modules, []},
     {registered, [navipoint_sup]},
-    {applications, [kernel, stdlib, cowboy, folsom, navidb]},
+    {applications, [kernel, stdlib, cowboy, navidb, navistats]},
     {mod, {navipoint_app, []}},
     {env, [
         {http_listen_port, 8981},

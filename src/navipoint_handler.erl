@@ -8,9 +8,9 @@
 -export([terminate/3]).
 
 upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
-    folsom_metrics:notify(point, {inc, 1}),
-    folsom_metrics:notify(point_meter, 1),
-    Begin = folsom_metrics:histogram_timed_begin(point_duration),
+    navistats:notify(point, {inc, 1}),
+    navistats:notify(point_meter, 1),
+    Begin = navistats:histogram_timed_begin(point_duration),
 
     % Start = now(),
     Method = cowboy_req:method(Req),
@@ -85,7 +85,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                 ], CriticalRespBody, Req)
             end,
 
-            folsom_metrics:histogram_timed_notify(Begin),
+            navistats:histogram_timed_notify(Begin),
 
             {ok, Req4, Env}
     end.

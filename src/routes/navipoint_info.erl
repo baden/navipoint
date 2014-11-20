@@ -24,24 +24,11 @@ content_types_provided(Req, State) ->
     ], Req, State}.
 
 hello_to_html(Req, State) ->
-
-
-
-    % Metrics = [
-    %     {point,             folsom_metrics:get_metric_value(point)},
-    %     {point_error,       folsom_metrics:get_metric_value(point_error)},
-    %     {point_error,       folsom_metrics:get_metric_value(point_error_crc)},
-    %     {point_error_data,  folsom_metrics:get_metric_value(point_error_data)},
-    %     {point_duration,    folsom_metrics:get_metric_value(point_duration)},
-    %     {point_duration_stat, folsom_metrics:get_histogram_statistics(point_duration)}
-    % ],
-    % Result = jsx:encode([{metrics, Metrics}]),
-
     Durations = list_to_binary([
         io_lib:format("['1', ~p],", [I]) ||
-        I <- folsom_metrics:get_metric_value(point_duration)]),
+        I <- navistats:get_metric_value(point_duration)]),
 
-    Histogram = folsom_metrics:get_histogram_statistics(point_duration),
+    Histogram = navistats:get_histogram_statistics(point_duration),
     HData = proplists:get_value(histogram, Histogram),
     RData = list_to_binary([
         io_lib:format("[~p, ~p],", [K, V]) ||
@@ -49,12 +36,12 @@ hello_to_html(Req, State) ->
 
     Table =
         <<"<table><tbody>",
-        (metric(point,              folsom_metrics:get_metric_value(point)))/binary,
-        (metric(point_meter,        folsom_metrics:get_metric_value(point_meter)))/binary,
-        (metric(point_error,       folsom_metrics:get_metric_value(point_error)))/binary,
-        (metric(point_error,       folsom_metrics:get_metric_value(point_error_crc)))/binary,
-        (metric(point_error_data,  folsom_metrics:get_metric_value(point_error_data)))/binary,
-        % (metric(point_duration,    folsom_metrics:get_metric_value(point_duration)))/binary,
+        (metric(point,             navistats:get_metric_value(point)))/binary,
+        (metric(point_meter,       navistats:get_metric_value(point_meter)))/binary,
+        (metric(point_error,       navistats:get_metric_value(point_error)))/binary,
+        (metric(point_error,       navistats:get_metric_value(point_error_crc)))/binary,
+        (metric(point_error_data,  navistats:get_metric_value(point_error_data)))/binary,
+        % (metric(point_duration,    navistats:get_metric_value(point_duration)))/binary,
         (metric(point_duration_stat, Histogram))/binary,
         "</tbody></table>">>,
 

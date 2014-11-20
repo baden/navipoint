@@ -9,6 +9,8 @@ To build the library:
 
     make
 
+To test the library:
 
+    make tests
 
 Erlang versions supported: 17.1 and up

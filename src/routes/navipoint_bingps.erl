@@ -23,11 +23,11 @@ repr({ok, Last}) ->
     end;
 
 repr(dataerror) ->
-    folsom_metrics:notify(point_error_data, {inc, 1}),
+    navistats:notify(point_error_data, {inc, 1}),
     #{response => <<"BINGPS: DATAERROR\r\n">>, dynamic => #{error => <<"dataerror">>}};
 
 repr(crcerror) ->
-    folsom_metrics:notify(point_error_crc, {inc, 1}),
+    navistats:notify(point_error_crc, {inc, 1}),
     #{response => <<"BINGPS: CRCERROR\r\n">>, dynamic => #{error => <<"crcerror">>}}.
 
 
