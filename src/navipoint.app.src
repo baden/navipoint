@@ -8,8 +8,6 @@
     {applications, [kernel, stdlib, cowboy, navidb, navistats]},
     {mod, {navipoint_app, []}},
     {env, [
-        {http_listen_port, 8981},
-        {acceptors, 1}
     ]},
     {start_phases, [
         {listen, []}

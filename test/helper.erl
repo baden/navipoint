@@ -1,11 +1,35 @@
 -module(helper).
 
--export([get/3, post/4, random_string/0, crc/1]).
+-include_lib("common_test/include/ct.hrl").
 
--define(PORT, 8981).
+-export([start/1, stop/1, get/3, post/4, random_string/0, crc/1]).
 
+-define(APP, navipoint).
+% -define(PORT, 8981).
 
-get(Imei, Url, Params) ->
+start(Config) ->
+    error_logger:tty(false),
+
+    {ok, Modules} = application:ensure_all_started(?APP),
+    {ok, GunModules} = application:ensure_all_started(gun),
+
+    {ok, Port} = application:get_env(?APP, port),
+
+    [{modules, Modules ++ GunModules}, {host, "localhost"}, {port, Port} | Config].
+
+stop(Config) ->
+    Modules = ?config(modules, Config),
+    [application:stop(Module) || Module <- lists:reverse(Modules)],
+    % application:unload(lager), application:unload(navidb), application:unload(naviccapi),
+    application:unload(navipoint),
+    error_logger:tty(true),
+    ok.
+
+get(Config, Url, Params) ->
+    Imei = ?config(imei, Config),
+    Host = ?config(host, Config),
+    Port = ?config(port, Config),
+
     % Path = io_lib:
     Path = Url ++ "?imei=" ++ url_encode(binary_to_list(Imei)) ++
      lists:flatten(maps:fold(
@@ -18,7 +42,7 @@ get(Imei, Url, Params) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open("localhost", ?PORT, [{retry, 0}, {type, tcp}]),
+    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
     Headers = [],
     Ref = gun:get(ConnPid, Path, Headers),
     Response = case gun:await(ConnPid, Ref) of
@@ -34,7 +58,10 @@ get(Imei, Url, Params) ->
     gun:close(ConnPid),
     Response.
 
-post(Imei, Url, Params, Payload) ->
+post(Config, Url, Params, Payload) ->
+    Imei = ?config(imei, Config),
+    Host = ?config(host, Config),
+    Port = ?config(port, Config),
     Headers = [
         {<<"content-type">>, <<"application/octet-stream">>}
     ],
@@ -49,7 +76,7 @@ post(Imei, Url, Params, Payload) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open("localhost", ?PORT, [{retry, 0}, {type, tcp}]),
+    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
     Ref = gun:post(ConnPid, Path, Headers, Payload),
     Response = case gun:await(ConnPid, Ref) of
         {response, nofin, Status, RespHeaders} ->

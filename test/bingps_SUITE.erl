@@ -13,20 +13,10 @@ all() -> [ errors, e2 ].
 % -define(POINT_PORT, 8981).
 
 init_per_suite(Config) ->
-    error_logger:tty(false),
-
-    {ok, Modules} = application:ensure_all_started(navipoint),
-    {ok, GunModules} = application:ensure_all_started(gun),
-
-    [{modules, Modules ++ GunModules} | Config].
+    helper:start(Config).
 
 end_per_suite(Config) ->
-    Modules = ?config(modules, Config),
-    [application:stop(Module) || Module <- lists:reverse(Modules)],
-    % application:unload(lager), application:unload(navidb), application:unload(naviccapi),
-    application:unload(navipoint),
-    error_logger:tty(true),
-    ok.
+    helper:stop(Config).
 
 init_per_testcase(_Case, Config) ->
     Imei = helper:random_string(),
@@ -35,25 +25,20 @@ init_per_testcase(_Case, Config) ->
 end_per_testcase(_Case, Config) ->
     Config.
 
-
 errors(Config) ->
-    Imei = ?config(imei, Config),
-    Skey = base64:encode(Imei),
+    Skey = base64:encode(?config(imei, Config)),
 
     Body1 = <<16#FF, 16#E2>>,
-    {200, _, <<"BINGPS: DATAERROR\r\n">>} = helper:post(Imei, "/bingps", #{}, Body1),
+    {200, _, <<"BINGPS: DATAERROR\r\n">>} = helper:post(Config, "/bingps", #{}, Body1),
     #{dynamic := #{error := <<"dataerror">>}} = navidb:get(systems, Skey),
 
     Body2 = <<0:(32*8)/little-unsigned-integer, 1, 2>>,
-    {200, _, <<"BINGPS: CRCERROR\r\n">>} = helper:post(Imei, "/bingps", #{}, Body2),
+    {200, _, <<"BINGPS: CRCERROR\r\n">>} = helper:post(Config, "/bingps", #{}, Body2),
     #{dynamic := #{error := <<"crcerror">>}} = navidb:get(systems, Skey),
 
     ok.
 
-
 e2(Config) ->
-    Imei = ?config(imei, Config),
-
     Datetime = 1409680257, % 2014-09-02 17:50:57
     Latitude = 48501829, % 48.501829
     Longitude = 34623322,  % 34.623322
@@ -76,9 +61,9 @@ e2(Config) ->
         vin  => 4170,
         dataid => <<"00015B86">>
     },
-    {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Imei, "/bingps", Extra, Body),
+    {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Config, "/bingps", Extra, Body),
 
-    Skey = base64:encode(Imei),
+    Skey = base64:encode(?config(imei, Config)),
     {ok, FakeE2Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
 
     #{dynamic := #{
