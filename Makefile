@@ -18,7 +18,8 @@ DEPS = lager cowboy jsxn navidb navistats
 TEST_DEPS = gun
 # dep_ct_helper = git https://github.com/extend/ct_helper.git master
 
-dep_cowboy = git git://github.com/ninenines/cowboy.git 2.0.0-pre.1
+#dep_cowboy = git git://github.com/ninenines/cowboy.git 2.0.0-pre.1
+dep_cowboy = git git://github.com/baden/cowboy.git master
 dep_jsxn = git git://github.com/talentdeficit/jsxn.git v2.1.1
 dep_navidb = git git://github.com/baden/navidb.git master
 dep_navistats = git git://github.com/baden/navistats.git master
