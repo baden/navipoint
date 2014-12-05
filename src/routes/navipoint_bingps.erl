@@ -1,10 +1,25 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_bingps).
 
--export([init/2, post/2]).
+-export([init/2, get/1, post/2]).
 
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
+
+% Возвращает текущие дату и время в формате, пригодном для установки
+% часов в SIM900 через AT+CCLK="yy/MM/dd,hh:mm:ss[+-]zz"
+get(#{params := #{<<"cmd">> := <<"CCLK">>}} = _Query) ->
+    % DateTime = os:timestamp(),
+    {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(os:timestamp()),
+    % DTstamp = <<"yy/MM/dd,hh:mm:ss+00">>,
+
+    RespBody = list_to_binary(lists:flatten(io_lib:format(
+        "CCLK: ~2.10.0B/~2.10.0B/~2.10.0B,~2.10.0B:~2.10.0B:~2.10.0B+00\r\n",
+        [Year-2000, Month, Day, Hour, Min, Sec]
+    ))),
+
+    #{response => RespBody, nocommands => true}.
+
 
 post(Body, #{skey := Skey}) ->
     repr(parsebingps(Skey, Body)).

@@ -84,18 +84,36 @@ parse(Full = <<255, 16#F2, _:30/binary,       % Пакет 0xF2 преобраз
             end
     end;
 
+parse(Full = <<255, 16#E1,       % Пакет 0xE1 - Определение положения по сотовым вышкам (примерное)
+    _:2/binary,                             % Res1
+    DATETIME:32/little-unsigned-integer,    % Дата+время (unixtime)
+    _Latitude:32/little-unsigned-integer,    % Широта
+    _Longitude:32/little-unsigned-integer,   % Долгота
+    _:16/binary,
+    Rest/binary>>, _Last, Line, Acc) ->
+
+        Hour = DATETIME div 3600,
+        % ct:pal("BLOCK 0xE2: dt = ~p (~p)", [DATETIME, iso_8601_fmt(DATETIME)]),
+        % ct:pal("BLOCK 0xE2: Latitude = ~p", [Latitude]),
+        % ct:pal("BLOCK 0xE2: Longitude = ~p", [Longitude]),
+
+        << Block:32/binary, _/binary >> = Full,
+
+        parse(Rest, Block, Line, dict:append(Hour, Block, Acc));
+
+
 parse(Full = <<255, 16#E2,       % Пакет 0xE2 - Определение положения по сотовым вышкам (примерное)
     _:2/binary,                             % Res1
     DATETIME:32/little-unsigned-integer,    % Дата+время (unixtime)
-    Latitude:32/little-unsigned-integer,    % Широта
-    Longitude:32/little-unsigned-integer,   % Долгота
+    _Latitude:32/little-unsigned-integer,    % Широта
+    _Longitude:32/little-unsigned-integer,   % Долгота
     _:16/binary,
     Rest/binary>>, _Last, Line, Acc) ->
 
     Hour = DATETIME div 3600,
-    ct:pal("BLOCK 0xE2: dt = ~p (~p)", [DATETIME, iso_8601_fmt(DATETIME)]),
-    ct:pal("BLOCK 0xE2: Latitude = ~p", [Latitude]),
-    ct:pal("BLOCK 0xE2: Longitude = ~p", [Longitude]),
+    % ct:pal("BLOCK 0xE2: dt = ~p (~p)", [DATETIME, iso_8601_fmt(DATETIME)]),
+    % ct:pal("BLOCK 0xE2: Latitude = ~p", [Latitude]),
+    % ct:pal("BLOCK 0xE2: Longitude = ~p", [Longitude]),
 
     << Block:32/binary, _/binary >> = Full,
 
