@@ -133,8 +133,30 @@ e2(Config) ->
 
 cclk(Config) ->
     {200, _, Resp} = helper:get(Config, "/bingps", #{cmd => <<"CCLK">>}),
-    {ok, RE_CCLK} = re:compile("CCLK: (\\d\\d)\\/(\\d\\d)\\/(\\d\\d),(\\d\\d):(\\d\\d):(\\d\\d)\\+00\r"),
     ct:pal("Resp = ~p", [Resp]),
-    {match, [Year, Month, Day, Hour, Minutes, Seconds]} = re:run(binary_to_list(Resp), RE_CCLK, [{newline,anycrlf}, {capture, [1,2,3,4,5,6], list}]),
+    {match, [Year, Month, Day, Hour, Minutes, Seconds]} = re:run(
+        Resp,
+        "^CCLK: (\\d\\d)\\/(\\d\\d)\\/(\\d\\d),(\\d\\d):(\\d\\d):(\\d\\d)\\+00$",
+        [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
+    ),
     ct:pal("Year = ~p, Month = ~p, Day = ~p, Hour = ~p, Minutes = ~p, Seconds = ~p", [Year, Month, Day, Hour, Minutes, Seconds]),
+    {match, [Dt]} = re:run(
+        Resp,
+        "^DT: ([0-9A-Za-z]{8})$",
+        [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
+    ),
+    ct:pal("Dt = ~p", [Dt]),
+    {match, [CCLK]} = re:run(
+        Resp,
+        "^CCLK: (.+)$",
+        [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
+    ),
+    ct:pal("CCLK = ~p", [CCLK]),
+    Dt1 = erlang:list_to_integer(Dt, 16),
+    Expect = ec_date:format("y/m/d,H:i:s\\+\\0\\0", {Dt1 div 1000000, Dt1 rem 1000000, 0}),
+    ct:pal("Expect = ~p", [Expect]),
+    ?assertEqual(CCLK, Expect),
     ok.
+
+% timestamp_to_datetime(T) ->
+%     calendar:now_to_universal_time({T div 1000000,T rem 1000000,0}).

@@ -9,13 +9,14 @@ ERLC_OPTS ?= +debug_info +warn_export_all +warn_export_vars \
 	+'{parse_transform, lager_transform}'
 # COMPILE_FIRST = cowboy_middleware cowboy_sub_protocol
 CT_OPTS += -spec test.spec -cover test/cover.spec -erl_args -config test/test.config
+# CT_OPTS += -erl_args -config test/test.config
 PLT_APPS = crypto public_key ssl
 
 # Dependencies.
 
 DEPS = lager cowboy jsxn navidb navistats
 # TEST_DEPS = ct_helper gun
-TEST_DEPS = gun
+TEST_DEPS = gun erlware_commons
 # dep_ct_helper = git https://github.com/extend/ct_helper.git master
 
 #dep_cowboy = git git://github.com/ninenines/cowboy.git 2.0.0-pre.1
@@ -23,6 +24,7 @@ dep_cowboy = git git://github.com/baden/cowboy.git master
 dep_jsxn = git git://github.com/talentdeficit/jsxn.git v2.1.1
 dep_navidb = git git://github.com/baden/navidb.git master
 dep_navistats = git git://github.com/baden/navistats.git master
+dep_erlware_commons = git https://github.com/erlware/erlware_commons.git master
 
 include erlang.mk
 

@@ -10,16 +10,18 @@ init(Req, Opts) ->
 % часов в SIM900 через AT+CCLK="yy/MM/dd,hh:mm:ss[+-]zz"
 get(#{params := #{<<"cmd">> := <<"CCLK">>}} = _Query) ->
     % DateTime = os:timestamp(),
-    {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(os:timestamp()),
+    {A, B, _} = Now = os:timestamp(),
+    {{Year,Month,Day},{Hour,Min,Sec}} = calendar:now_to_universal_time(Now),
+    Dt = (A * 1000000) + B,
     % DTstamp = <<"yy/MM/dd,hh:mm:ss+00">>,
 
     RespBody = list_to_binary(lists:flatten(io_lib:format(
-        "CCLK: ~2.10.0B/~2.10.0B/~2.10.0B,~2.10.0B:~2.10.0B:~2.10.0B+00\r\n",
-        [Year-2000, Month, Day, Hour, Min, Sec]
+        "CCLK: ~2.10.0B/~2.10.0B/~2.10.0B,~2.10.0B:~2.10.0B:~2.10.0B+00\r\n"
+        "DT: ~8.16.0B\r\n",
+        [Year-2000, Month, Day, Hour, Min, Sec, Dt]
     ))),
 
     #{response => RespBody, nocommands => true}.
-
 
 post(Body, #{skey := Skey}) ->
     repr(parsebingps(Skey, Body)).
