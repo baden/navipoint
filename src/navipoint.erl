@@ -290,6 +290,28 @@ point_to_doc(<<255, 16#E2,          % Пакет 0xE2 - Определение �
         raw         => binary_to_list(Packet)
     };
 
+point_to_doc(undefined) ->
+    #{
+        fsource     => 0,
+        sats        => 0,
+        dt          => 0,
+        latitude    => 0.0,
+        longitude   => 0.0,
+        speed       => 0.0,
+        alt         => 0,
+        course      => 0,
+        vout        => 0.0,
+        vin         => 0.0,
+        fuel        => 0.0,
+        adc1        => 0.0,
+        res1        => 0,
+        res2        => 0,
+        res3        => 0,
+        res4        => 0,
+        res5        => 0,
+        raw         => []
+    };
+
 point_to_doc(Packet) ->
     #{
         fsource     => 0,
@@ -311,6 +333,7 @@ point_to_doc(Packet) ->
         res5        => 0,
         raw         => binary_to_list(Packet)
     }.
+
 
 % Используется для преобразования устаревшего протокола F2 в новый F5
 convert(<<16#FF, 16#F2,           % Пакет 0xF2 (Устаревшее)
