@@ -85,55 +85,53 @@ parse(Full = <<255, 16#F2, _:30/binary,       % Пакет 0xF2 преобраз
     end;
 
 parse(Full = <<255, 16#E1,       % Пакет 0xE1 - Определение положения по сотовым вышкам (примерное)
-    MCC_MNC:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID0:16/little-unsigned-integer,    % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    _MCC_MNC:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    _LAC:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    _CID0:16/little-unsigned-integer,    % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
     DATETIME:32/little-unsigned-integer,% | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
-    CID1:16/little-unsigned-integer,    % | CID1      | 2 | CID - соседней вышки №1 |
-    CID2:16/little-unsigned-integer,    % | CID2      | 2 | CID - соседней вышки №2 |
-    CID3:16/little-unsigned-integer,    % | CID3      | 2 | CID - соседней вышки №3 |
-    CID4:16/little-unsigned-integer,    % | CID4      | 2 | CID - соседней вышки №4 |
-    CID5:16/little-unsigned-integer,    % | CID5      | 2 | CID - соседней вышки №5 |
-    CID6:16/little-unsigned-integer,    % | CID6      | 2 | CID - соседней вышки №6 |
-    RXL0,   % | RXL       | 1 | RXL - активной вышки |
-    RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
-    RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
-    RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
-    RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
-    RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
-    RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
+    _CID1:16/little-unsigned-integer,    % | CID1      | 2 | CID - соседней вышки №1 |
+    _CID2:16/little-unsigned-integer,    % | CID2      | 2 | CID - соседней вышки №2 |
+    _CID3:16/little-unsigned-integer,    % | CID3      | 2 | CID - соседней вышки №3 |
+    _CID4:16/little-unsigned-integer,    % | CID4      | 2 | CID - соседней вышки №4 |
+    _CID5:16/little-unsigned-integer,    % | CID5      | 2 | CID - соседней вышки №5 |
+    _CID6:16/little-unsigned-integer,    % | CID6      | 2 | CID - соседней вышки №6 |
+    _RXL0,   % | RXL       | 1 | RXL - активной вышки |
+    _RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
+    _RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
+    _RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
+    _RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
+    _RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
+    _RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
     _,      % | CRC (res) | 1 | ? |
     Rest/binary>>, _Last, Line, Acc) ->
-
         Hour = DATETIME div 3600,
-
-        MCC = (MCC_MNC div 100) + 200,
-        MNC = MCC_MNC rem 100,
-        ct:pal("BLOCK 0xE1: dt = ~p (~p)~n"
-            "  MCC = ~p~n"
-            "  MNC = ~p~n"
-            "  LAC = ~p~n"
-            "  CID0 = ~p~n"
-            "  CID1 = ~p~n"
-            "  CID2 = ~p~n"
-            "  CID3 = ~p~n"
-            "  CID4 = ~p~n"
-            "  CID5 = ~p~n"
-            "  CID6 = ~p~n"
-            "  RXL0 = ~p~n"
-            "  RXL1 = ~p~n"
-            "  RXL2 = ~p~n"
-            "  RXL3 = ~p~n"
-            "  RXL4 = ~p~n"
-            "  RXL5 = ~p~n"
-            "  RXL6 = ~p~n"
-            , [
-                DATETIME, iso_8601_fmt(DATETIME),
-                MCC, MNC, LAC,
-                CID0, CID1, CID2, CID3, CID4, CID5, CID6,
-                RXL0, RXL1, RXL2, RXL3, RXL4, RXL5, RXL6
-            ]
-        ),
+        % MCC = (MCC_MNC div 100) + 200,
+        % MNC = MCC_MNC rem 100,
+        % ct:pal("BLOCK 0xE1: dt = ~p (~p)~n"
+        %     "  MCC = ~p~n"
+        %     "  MNC = ~p~n"
+        %     "  LAC = ~p~n"
+        %     "  CID0 = ~p~n"
+        %     "  CID1 = ~p~n"
+        %     "  CID2 = ~p~n"
+        %     "  CID3 = ~p~n"
+        %     "  CID4 = ~p~n"
+        %     "  CID5 = ~p~n"
+        %     "  CID6 = ~p~n"
+        %     "  RXL0 = ~p~n"
+        %     "  RXL1 = ~p~n"
+        %     "  RXL2 = ~p~n"
+        %     "  RXL3 = ~p~n"
+        %     "  RXL4 = ~p~n"
+        %     "  RXL5 = ~p~n"
+        %     "  RXL6 = ~p~n"
+        %     , [
+        %         DATETIME, iso_8601_fmt(DATETIME),
+        %         MCC, MNC, LAC,
+        %         CID0, CID1, CID2, CID3, CID4, CID5, CID6,
+        %         RXL0, RXL1, RXL2, RXL3, RXL4, RXL5, RXL6
+        %     ]
+        % ),
         % ct:pal("BLOCK 0xE2: Latitude = ~p", [Latitude]),
         % ct:pal("BLOCK 0xE2: Longitude = ~p", [Longitude]),
 
