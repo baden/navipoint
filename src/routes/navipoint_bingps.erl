@@ -28,16 +28,18 @@ post(Body, #{skey := Skey}) ->
 
 repr({ok, Last}) ->
     % Dynamic = [{lastping, unixtime()}, {csq, Csq}] ++ navipoint:point_to_doc(Last),
-    #{dt := DT} = Dynamic = navipoint:point_to_doc(Last),
-    TRESHOLD = 1356991200,        % 01/01/2013
+    % #{dt := DT} =
+    Dynamic = navipoint:point_to_doc(Last),
+    % TRESHOLD = 1356991200,        % 01/01/2013
 
-    if
-        DT >= TRESHOLD ->
-            #{response => <<"BINGPS: OK\r\n">>, dynamic => Dynamic};
-        true ->
-            % ?WARNING("===================== Skip -44 year pont ==================="),
-            #{response => <<"BINGPS: OK\r\n">>, dynamic => #{error => <<"treshold">>}}
-    end;
+    #{response => <<"BINGPS: OK\r\n">>, dynamic => Dynamic};
+    % if
+    %     DT >= TRESHOLD ->
+    %         #{response => <<"BINGPS: OK\r\n">>, dynamic => Dynamic};
+    %     true ->
+    %         % ?WARNING("===================== Skip -44 year pont ==================="),
+    %         #{response => <<"BINGPS: OK\r\n">>, dynamic => #{error => <<"treshold">>}}
+    % end;
 
 repr(dataerror) ->
     navistats:notify(point_error_data, {inc, 1}),
