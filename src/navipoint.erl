@@ -85,15 +85,55 @@ parse(Full = <<255, 16#F2, _:30/binary,       % Пакет 0xF2 преобраз
     end;
 
 parse(Full = <<255, 16#E1,       % Пакет 0xE1 - Определение положения по сотовым вышкам (примерное)
-    _:2/binary,                             % Res1
-    DATETIME:32/little-unsigned-integer,    % Дата+время (unixtime)
-    _Latitude:32/little-unsigned-integer,    % Широта
-    _Longitude:32/little-unsigned-integer,   % Долгота
-    _:16/binary,
+    MCC_MNC:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID0:16/little-unsigned-integer,    % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    DATETIME:32/little-unsigned-integer,% | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    CID1:16/little-unsigned-integer,    % | CID1      | 2 | CID - соседней вышки №1 |
+    CID2:16/little-unsigned-integer,    % | CID2      | 2 | CID - соседней вышки №2 |
+    CID3:16/little-unsigned-integer,    % | CID3      | 2 | CID - соседней вышки №3 |
+    CID4:16/little-unsigned-integer,    % | CID4      | 2 | CID - соседней вышки №4 |
+    CID5:16/little-unsigned-integer,    % | CID5      | 2 | CID - соседней вышки №5 |
+    CID6:16/little-unsigned-integer,    % | CID6      | 2 | CID - соседней вышки №6 |
+    RXL0,   % | RXL       | 1 | RXL - активной вышки |
+    RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
+    RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
+    RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
+    RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
+    RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
+    RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
+    _,      % | CRC (res) | 1 | ? |
     Rest/binary>>, _Last, Line, Acc) ->
 
         Hour = DATETIME div 3600,
-        % ct:pal("BLOCK 0xE2: dt = ~p (~p)", [DATETIME, iso_8601_fmt(DATETIME)]),
+
+        MCC = (MCC_MNC div 100) + 200,
+        MNC = MCC_MNC rem 100,
+        ct:pal("BLOCK 0xE1: dt = ~p (~p)~n"
+            "  MCC = ~p~n"
+            "  MNC = ~p~n"
+            "  LAC = ~p~n"
+            "  CID0 = ~p~n"
+            "  CID1 = ~p~n"
+            "  CID2 = ~p~n"
+            "  CID3 = ~p~n"
+            "  CID4 = ~p~n"
+            "  CID5 = ~p~n"
+            "  CID6 = ~p~n"
+            "  RXL0 = ~p~n"
+            "  RXL1 = ~p~n"
+            "  RXL2 = ~p~n"
+            "  RXL3 = ~p~n"
+            "  RXL4 = ~p~n"
+            "  RXL5 = ~p~n"
+            "  RXL6 = ~p~n"
+            , [
+                DATETIME, iso_8601_fmt(DATETIME),
+                MCC, MNC, LAC,
+                CID0, CID1, CID2, CID3, CID4, CID5, CID6,
+                RXL0, RXL1, RXL2, RXL3, RXL4, RXL5, RXL6
+            ]
+        ),
         % ct:pal("BLOCK 0xE2: Latitude = ~p", [Latitude]),
         % ct:pal("BLOCK 0xE2: Longitude = ~p", [Longitude]),
 
@@ -163,7 +203,7 @@ point_to_doc(<<255, 16#F5,          % Пакет 0xF5
     RES3,                                   % Резерв
     RES4,                                   % Резерв
     RES5,                                   % Резерв
-    _LCRC>>) ->                             % Локальная CRC (сумма всех байтов пакета, младший разряд)
+    _LCRC>> = Packet) ->                    % Локальная CRC (сумма всех байтов пакета, младший разряд)
 
     % TODO! Добавить проверку LCRC после реализакии в трекерах
     % ?INFO("ADC_LSB = ~w", [ADC_LSB]),
@@ -185,25 +225,74 @@ point_to_doc(<<255, 16#F5,          % Пакет 0xF5
         res2        => RES2,
         res3        => RES3,
         res4        => RES4,
-        res5        => RES5
+        res5        => RES5,
+        raw         => binary_to_list(Packet)
     };
+
+point_to_doc(<<255, 16#E1,          % Пакет 0xE1 - Определение положения по сотовым вышкам (примерное)
+    MCC_MNC:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID0:16/little-unsigned-integer,    % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    DATETIME:32/little-unsigned-integer,% | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    CID1:16/little-unsigned-integer,    % | CID1      | 2 | CID - соседней вышки №1 |
+    CID2:16/little-unsigned-integer,    % | CID2      | 2 | CID - соседней вышки №2 |
+    CID3:16/little-unsigned-integer,    % | CID3      | 2 | CID - соседней вышки №3 |
+    CID4:16/little-unsigned-integer,    % | CID4      | 2 | CID - соседней вышки №4 |
+    CID5:16/little-unsigned-integer,    % | CID5      | 2 | CID - соседней вышки №5 |
+    CID6:16/little-unsigned-integer,    % | CID6      | 2 | CID - соседней вышки №6 |
+    RXL0,   % | RXL       | 1 | RXL - активной вышки |
+    RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
+    RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
+    RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
+    RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
+    RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
+    RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
+    _>> = Packet) ->  % | CRC (res) | 1 | ? |
+
+    MCC = (MCC_MNC div 100) + 200,
+    MNC = MCC_MNC rem 100,
+
+    #{
+        alt         => <<"GSM6CELL">>,
+        dt          => DATETIME,
+        mcc         => MCC,
+        mnc         => MNC,
+        lac         => LAC,
+        cid0        => CID0,
+        cid1        => CID1,
+        cid2        => CID2,
+        cid3        => CID3,
+        cid4        => CID4,
+        cid5        => CID5,
+        cid6        => CID6,
+        rxl0        => RXL0,
+        rxl1        => RXL1,
+        rxl2        => RXL2,
+        rxl3        => RXL3,
+        rxl4        => RXL4,
+        rxl5        => RXL5,
+        rxl6        => RXL6,
+        raw         => binary_to_list(Packet)
+    };
+
 
 point_to_doc(<<255, 16#E2,          % Пакет 0xE2 - Определение положения по сотовым вышкам (примерное)
     _:2/binary,                             % Res1
     DATETIME:32/little-unsigned-integer,    % Дата+время (unixtime)
     LATITUDE:32/little-unsigned-integer,    % Широта
     LONGITIDE:32/little-unsigned-integer,   % Долгота
-    _:16/binary>>) ->                       % Res2
+    _:16/binary>> = Packet) ->                       % Res2
 
     #{
         alt         => <<"GSMCELL">>,
         dt          => DATETIME,
         latitude    => LATITUDE / 1000000.0,
         longitude   => LONGITIDE / 1000000.0,
-        res0        => 0
+        res0        => 0,
+        raw         => binary_to_list(Packet)
     };
 
-point_to_doc(_) ->
+point_to_doc(Packet) ->
     #{
         fsource     => 0,
         sats        => 0,
@@ -221,7 +310,8 @@ point_to_doc(_) ->
         res2        => 0,
         res3        => 0,
         res4        => 0,
-        res5        => 0
+        res5        => 0,
+        raw         => binary_to_list(Packet)
     }.
 
 % Используется для преобразования устаревшего протокола F2 в новый F5

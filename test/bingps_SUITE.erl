@@ -90,6 +90,28 @@ e1(Config) ->
   {ok, _FakeE1Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
   ct:pal("FakeE1Packet = ~p~n", [_FakeE1Packet]),
 
+  #{dynamic := #{
+      alt  := <<"GSM6CELL">>,
+      dt  := Datetime,
+      mcc := 255,
+      mnc := 3,
+      lac := 47080,
+      cid0 := 1461,
+      cid1 := 1462,
+      cid2 := 9461,
+      cid3 := 17403,
+      cid4 := 1463,
+      cid5 := 28793,
+      cid6 := 17401,
+      rxl0 := 52,
+      rxl1 := 32,
+      rxl2 := 30,
+      rxl3 := 26,
+      rxl4 := 24,
+      rxl5 := 19,
+      rxl6 := 13
+  }} = navidb:get(systems, Skey),
+
   ok.
 
 e2(Config) ->
