@@ -26,8 +26,8 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
         lastping => unixtime(),
         method   => Method,
         csq      => Csq,
-        vin      => Vin,
-        vout     => Vout
+        vin      => Vin / 1000,
+        vout     => Vout / 1000
     },
 
     % Все входящие сообщения должны содержать параметр imei. Иначе отбой соединения

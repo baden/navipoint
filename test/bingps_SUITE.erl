@@ -8,7 +8,7 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ errors, e1, e2, cclk ].
+all() -> [ errors, e1, e2, e3, cclk ].
 
 % -define(POINT_PORT, 8981).
 
@@ -147,11 +147,94 @@ e2(Config) ->
         dt        := 1409680257,
         latitude  := 48.501829,
         longitude := 34.623322,
-        vin       := 4170,
-        vout      := 13970
+        vin       := 4.17,
+        vout      := 13.97
     }} = navidb:get(systems, Skey),
 
     ok.
+
+mcc_mnc(MCC, MNC) -> ((MCC-200)*100 + MNC).
+
+e3(Config) ->
+    Datetime = 1409680257, % 2014-09-02 17:50:57
+
+    MCC0 = 255, MNC0 = 03, LAC0 = 16#B7E8, CID0 = 16#05B5, RXL0 = 52, TA0 = 1,
+    MCC1 = 255, MNC1 = 03, LAC1 = 16#B7E8, CID1 = 16#05B6, RXL1 = 32,
+    MCC2 = 255, MNC2 = 03, LAC2 = 16#B7E8, CID2 = 16#24F5, RXL2 = 30,
+    MCC3 = 255, MNC3 = 03, LAC3 = 16#B7E8, CID3 = 16#43FB, RXL3 = 26,
+    MCC4 = 255, MNC4 = 03, LAC4 = 16#B7E8, CID4 = 16#05B7, RXL4 = 24,
+    MCC5 = 255, MNC5 = 03, LAC5 = 16#B7E8, CID5 = 16#7079, RXL5 = 19,
+    MCC6 = 255, MNC6 = 03, LAC6 = 16#B7E8, CID6 = 16#43F9, RXL6 = 13,
+
+    FakeE3Packet = <<16#FF, 16#E3, 0, 0,
+    Datetime:32/little-unsigned-integer,  % | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    (mcc_mnc(MCC0, MNC0)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC0:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID0:16/little-unsigned-integer, % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    (mcc_mnc(MCC1, MNC1)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC1:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID1:16/little-unsigned-integer, % | CID1      | 2 | CID - соседней вышки №1 |
+    (mcc_mnc(MCC2, MNC2)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC2:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID2:16/little-unsigned-integer, % | CID2      | 2 | CID - соседней вышки №2 |
+    (mcc_mnc(MCC3, MNC3)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC3:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID3:16/little-unsigned-integer, % | CID3      | 2 | CID - соседней вышки №3 |
+    (mcc_mnc(MCC4, MNC4)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC4:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID4:16/little-unsigned-integer, % | CID4      | 2 | CID - соседней вышки №4 |
+    (mcc_mnc(MCC5, MNC5)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC5:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID5:16/little-unsigned-integer, % | CID5      | 2 | CID - соседней вышки №5 |
+    (mcc_mnc(MCC6, MNC6)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC6:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID6:16/little-unsigned-integer, % | CID6      | 2 | CID - соседней вышки №6 |
+    TA0, %  | TA0       | 1 | TA - Timing Advance активной вышки |
+    RXL0, % | RXL       | 1 | RXL - активной вышки |
+    RXL1, % | RXL1      | 1 | RXL - соседней вышки №1 |
+    RXL2, % | RXL2      | 1 | RXL - соседней вышки №2 |
+    RXL3, % | RXL3      | 1 | RXL - соседней вышки №3 |
+    RXL4, % | RXL4      | 1 | RXL - соседней вышки №4 |
+    RXL5, % | RXL5      | 1 | RXL - соседней вышки №5 |
+    RXL6, % | RXL6      | 1 | RXL - соседней вышки №6 |
+    0, 0, 0, 0, 0,
+    % | CRC       | 1 | ? |
+    0:(1*8)/little-unsigned-integer>>,
+
+    ?assertEqual(64, size(FakeE3Packet)),
+
+    CRC = helper:crc(FakeE3Packet),
+    Body = <<FakeE3Packet/binary, CRC:16/little-unsigned-integer>>,
+    Extra = #{
+        csq  => 21,
+        vout => 13970,
+        vin  => 4170,
+        dataid => <<"00015B86">>
+    },
+    {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Config, "/bingps", Extra, Body),
+
+    Skey = base64:encode(?config(imei, Config)),
+    {ok, _FakeE3Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
+    ct:pal("FakeE3Packet = ~p~n", [_FakeE3Packet]),
+
+    ct:pal("Get = ~p", [navidb:get(systems, Skey)]),
+
+    #{dynamic := #{
+        alt  := <<"GSM6CELL">>,
+        dt  := Datetime,
+        cells := [
+            #{mcc := MCC0, mnc := MNC0, lac := LAC0, cid := CID0, rxl := RXL0, ta := TA0},
+            #{mcc := MCC1, mnc := MNC1, lac := LAC1, cid := CID1, rxl := RXL1},
+            #{mcc := MCC2, mnc := MNC2, lac := LAC2, cid := CID2, rxl := RXL2},
+            #{mcc := MCC3, mnc := MNC3, lac := LAC3, cid := CID3, rxl := RXL3},
+            #{mcc := MCC4, mnc := MNC4, lac := LAC4, cid := CID4, rxl := RXL4},
+            #{mcc := MCC5, mnc := MNC5, lac := LAC5, cid := CID5, rxl := RXL5},
+            #{mcc := MCC6, mnc := MNC6, lac := LAC6, cid := CID6, rxl := RXL6}
+        ]
+    }} = navidb:get(systems, Skey),
+
+    ok.
+
 
 cclk(Config) ->
     {200, _, Resp} = helper:get(Config, "/bingps", #{cmd => <<"CCLK">>}),

@@ -159,6 +159,48 @@ parse(Full = <<255, 16#E2,       % Пакет 0xE2 - Определение по
     % parse(Rest, Last, Line, dict:append(Hour, Block, Acc));
     % parse(Rest, Last, Line, Acc);
 
+% Пакет 0xE3 - Определение положения по сотовым вышкам (расширенная)
+parse(Full = <<255, 16#E3,                  % | HEAD      | 1 | Заголовок пакета. Всегда имеет значение 0xFF. |
+                                            % | ID        | 1 | Идентификатор пакета. Имеет значение 0xE3 |
+    0, 0,                                   % | RES1      | 2 | Резерв |
+    DATETIME:32/little-unsigned-integer,    % | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    _MCC0_MNC0:16/little-unsigned-integer,  % | MCC0+MNC0 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC активной вышки |
+    _LAC0:16/little-unsigned-integer,       % | LAC0      | 2 | LAC - код локальной зоны активной вышки |
+    _CID0:16/little-unsigned-integer,       % | CID0      | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    _MCC1_MNC1:16/little-unsigned-integer,  % | MCC1+MNC1 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #1 |
+    _LAC1:16/little-unsigned-integer,       % | LAC1      | 2 | LAC - код локальной зоны вышки #1 |
+    _CID1:16/little-unsigned-integer,       % | CID1      | 2 | CID - соседней вышки №1 |
+    _MCC2_MNC2:16/little-unsigned-integer,  % | MCC1+MNC1 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #2 |
+    _LAC2:16/little-unsigned-integer,       % | LAC1      | 2 | LAC - код локальной зоны вышки #2 |
+    _CID2:16/little-unsigned-integer,       % | CID2      | 2 | CID - соседней вышки №2 |
+    _MCC3_MNC3:16/little-unsigned-integer,  % | MCC1+MNC1 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #3 |
+    _LAC3:16/little-unsigned-integer,       % | LAC1      | 2 | LAC - код локальной зоны вышки #3 |
+    _CID3:16/little-unsigned-integer,       % | CID3      | 2 | CID - соседней вышки №3 |
+    _MCC4_MNC4:16/little-unsigned-integer,  % | MCC4+MNC4 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #4 |
+    _LAC4:16/little-unsigned-integer,       % | LAC4      | 2 | LAC - код локальной зоны вышки #4 |
+    _CID4:16/little-unsigned-integer,       % | CID4      | 2 | CID - соседней вышки №4 |
+    _MCC5_MNC5:16/little-unsigned-integer,  % | MCC1+MNC1 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #5 |
+    _LAC5:16/little-unsigned-integer,       % | LAC1      | 2 | LAC - код локальной зоны вышки #5 |
+    _CID5:16/little-unsigned-integer,       % | CID5      | 2 | CID - соседней вышки №5 |
+    _MCC6_MNC6:16/little-unsigned-integer,  % | MCC1+MNC1 | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC вышки #6 |
+    _LAC6:16/little-unsigned-integer,       % | LAC1      | 2 | LAC - код локальной зоны вышки #6 |
+    _CID6:16/little-unsigned-integer,       % | CID6      | 2 | CID - соседней вышки №6 |
+    _TA0,    % | TA0       | 1 | TA - Timing Advance (задержка сигнала?) активной вышки |
+    _RXL0,   % | RXL       | 1 | RXL - активной вышки |
+    _RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
+    _RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
+    _RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
+    _RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
+    _RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
+    _RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
+    0, 0, 0, 0, 0,  % | RES2      | 5 | Резерв |
+    _,      % | CRC (res) | 1 | ? |
+    Rest/binary>>, _Last, Line, Acc) ->
+        Hour = DATETIME div 3600,
+
+        << Block:64/binary, _/binary >> = Full,
+
+        parse(Rest, Block, Line, dict:append(Hour, Block, Acc));
 
 parse(<<_Char, Rest/binary>>, Last, Line, Acc) ->  % Поиск 0xFF
     % ?INFO("skip ~.16B", [_Char]),
@@ -270,6 +312,63 @@ point_to_doc(<<255, 16#E1,          % Пакет 0xE1 - Определение �
         rxl4        => RXL4,
         rxl5        => RXL5,
         rxl6        => RXL6,
+        raw         => binary_to_list(Packet)
+    };
+
+point_to_doc(<<255, 16#E3, 0, 0,        % Пакет 0xE3 - Определение положения по сотовым вышкам (примерное)
+    DATETIME:32/little-unsigned-integer,% | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    MCC0_MNC0:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC0:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID0:16/little-unsigned-integer,    % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    MCC1_MNC1:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC1:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID1:16/little-unsigned-integer,    % | CID1      | 2 | CID - соседней вышки №1 |
+    MCC2_MNC2:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC2:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID2:16/little-unsigned-integer,    % | CID2      | 2 | CID - соседней вышки №2 |
+    MCC3_MNC3:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC3:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID3:16/little-unsigned-integer,    % | CID3      | 2 | CID - соседней вышки №3 |
+    MCC4_MNC4:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC4:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID4:16/little-unsigned-integer,    % | CID4      | 2 | CID - соседней вышки №4 |
+    MCC5_MNC5:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC5:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID5:16/little-unsigned-integer,    % | CID5      | 2 | CID - соседней вышки №5 |
+    MCC6_MNC6:16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    LAC6:16/little-unsigned-integer,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    CID6:16/little-unsigned-integer,    % | CID6      | 2 | CID - соседней вышки №6 |
+    TA0,   % | TA0       | 1 | TA - активной вышки |
+    RXL0,   % | RXL       | 1 | RXL - активной вышки |
+    RXL1,   % | RXL1      | 1 | RXL - соседней вышки №1 |
+    RXL2,   % | RXL2      | 1 | RXL - соседней вышки №2 |
+    RXL3,   % | RXL3      | 1 | RXL - соседней вышки №3 |
+    RXL4,   % | RXL4      | 1 | RXL - соседней вышки №4 |
+    RXL5,   % | RXL5      | 1 | RXL - соседней вышки №5 |
+    RXL6,   % | RXL6      | 1 | RXL - соседней вышки №6 |
+    0, 0, 0, 0, 0,
+    _>> = Packet) ->  % | CRC (res) | 1 | ? |
+
+    MCC0 = (MCC0_MNC0 div 100) + 200, MNC0 = MCC0_MNC0 rem 100,
+    MCC1 = (MCC1_MNC1 div 100) + 200, MNC1 = MCC1_MNC1 rem 100,
+    MCC2 = (MCC2_MNC2 div 100) + 200, MNC2 = MCC2_MNC2 rem 100,
+    MCC3 = (MCC3_MNC3 div 100) + 200, MNC3 = MCC3_MNC3 rem 100,
+    MCC4 = (MCC4_MNC4 div 100) + 200, MNC4 = MCC4_MNC4 rem 100,
+    MCC5 = (MCC5_MNC5 div 100) + 200, MNC5 = MCC5_MNC5 rem 100,
+    MCC6 = (MCC6_MNC6 div 100) + 200, MNC6 = MCC6_MNC6 rem 100,
+
+    #{
+        alt         => <<"GSM6CELL">>,
+        dt          => DATETIME,
+        cells       => [
+            #{mcc => MCC0, mnc => MNC0, lac => LAC0, cid => CID0, rxl => RXL0, ta => TA0},
+            #{mcc => MCC1, mnc => MNC1, lac => LAC1, cid => CID1, rxl => RXL1},
+            #{mcc => MCC2, mnc => MNC2, lac => LAC2, cid => CID2, rxl => RXL2},
+            #{mcc => MCC3, mnc => MNC3, lac => LAC3, cid => CID3, rxl => RXL3},
+            #{mcc => MCC4, mnc => MNC4, lac => LAC4, cid => CID4, rxl => RXL4},
+            #{mcc => MCC5, mnc => MNC5, lac => LAC5, cid => CID5, rxl => RXL5},
+            #{mcc => MCC6, mnc => MNC6, lac => LAC6, cid => CID6, rxl => RXL6}
+        ],
         raw         => binary_to_list(Packet)
     };
 
