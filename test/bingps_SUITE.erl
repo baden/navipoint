@@ -156,7 +156,9 @@ e2(Config) ->
 mcc_mnc(MCC, MNC) -> ((MCC-200)*100 + MNC).
 
 e3(Config) ->
-    Datetime = 1409680257, % 2014-09-02 17:50:57
+    Datetime = 1409680257,  % 2014-09-02 17:50:57
+    Latitude =  48.50183,   % 48.50183
+    Longitude = 34.62332,   % 34.62332
 
     MCC0 = 255, MNC0 = 03, LAC0 = 16#B7E8, CID0 = 16#05B5, RXL0 = 52, TA0 = 1,
     MCC1 = 255, MNC1 = 03, LAC1 = 16#B7E8, CID1 = 16#05B6, RXL1 = 32,
@@ -166,29 +168,14 @@ e3(Config) ->
     MCC5 = 255, MNC5 = 03, LAC5 = 16#B7E8, CID5 = 16#7079, RXL5 = 19,
     MCC6 = 255, MNC6 = 03, LAC6 = 16#B7E8, CID6 = 16#43F9, RXL6 = 13,
 
-    FakeE3Packet = <<16#FF, 16#E3, 0, 0,
-    Datetime:32/little-unsigned-integer,  % | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
-    (mcc_mnc(MCC0, MNC0)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC0:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID0:16/little-unsigned-integer, % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
-    (mcc_mnc(MCC1, MNC1)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC1:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID1:16/little-unsigned-integer, % | CID1      | 2 | CID - соседней вышки №1 |
-    (mcc_mnc(MCC2, MNC2)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC2:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID2:16/little-unsigned-integer, % | CID2      | 2 | CID - соседней вышки №2 |
-    (mcc_mnc(MCC3, MNC3)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC3:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID3:16/little-unsigned-integer, % | CID3      | 2 | CID - соседней вышки №3 |
-    (mcc_mnc(MCC4, MNC4)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC4:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID4:16/little-unsigned-integer, % | CID4      | 2 | CID - соседней вышки №4 |
-    (mcc_mnc(MCC5, MNC5)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC5:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID5:16/little-unsigned-integer, % | CID5      | 2 | CID - соседней вышки №5 |
-    (mcc_mnc(MCC6, MNC6)):16/little-unsigned-integer, % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
-    LAC6:16/little-unsigned-integer, % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
-    CID6:16/little-unsigned-integer, % | CID6      | 2 | CID - соседней вышки №6 |
+    FakeE3Packet = <<16#FF, 16#E3,
+    (mcc_mnc(MCC0, MNC0)):16, LAC0:16, CID0:16,     % | MCC+MNC   | 2 | MCC - код страны и MNC - код сети. (MCC-200)*100 + MNC |
+    (mcc_mnc(MCC1, MNC1)):16, LAC1:16, CID1:16,     % | LAC       | 2 | LAC - код локальной зоны (другими словами, совокупности базовых станций, обслуживаемых одним контроллером) |
+    (mcc_mnc(MCC2, MNC2)):16, LAC2:16, CID2:16,     % | CID       | 2 | CID (CellID) - идентификатор, состоит из номеров базовой станции и сектора |
+    (mcc_mnc(MCC3, MNC3)):16, LAC3:16, CID3:16,
+    (mcc_mnc(MCC4, MNC4)):16, LAC4:16, CID4:16,
+    (mcc_mnc(MCC5, MNC5)):16, LAC5:16, CID5:16,
+    (mcc_mnc(MCC6, MNC6)):16, LAC6:16, CID6:16,
     TA0, %  | TA0       | 1 | TA - Timing Advance активной вышки |
     RXL0, % | RXL       | 1 | RXL - активной вышки |
     RXL1, % | RXL1      | 1 | RXL - соседней вышки №1 |
@@ -197,9 +184,9 @@ e3(Config) ->
     RXL4, % | RXL4      | 1 | RXL - соседней вышки №4 |
     RXL5, % | RXL5      | 1 | RXL - соседней вышки №5 |
     RXL6, % | RXL6      | 1 | RXL - соседней вышки №6 |
-    0, 0, 0, 0, 0,
-    % | CRC       | 1 | ? |
-    0:(1*8)/little-unsigned-integer>>,
+    Datetime:32,            % | DATETIME  | 4 | Дата+время (метка может быть не задана или иметь неточное значение)
+    (trunc(Latitude * 600000)):32/signed,     % | 4 | Широта 1/10000 минут.   Поле определено, если есть текущие координаты от GPS-модуля. |
+    (trunc(Longitude * 600000)):32/signed>>,  % |    60    | LONGITUDE | 4 | Долгота 1/10000 минут.  В противном случае, LATITUDE и LONGITUDE равны 0 |
 
     ?assertEqual(64, size(FakeE3Packet)),
 
@@ -222,6 +209,8 @@ e3(Config) ->
     #{dynamic := #{
         alt  := <<"GSM6CELL">>,
         dt  := Datetime,
+        latitude := Latitude,
+        longitude := Longitude,
         cells := [
             #{mcc := MCC0, mnc := MNC0, lac := LAC0, cid := CID0, rxl := RXL0, ta := TA0},
             #{mcc := MCC1, mnc := MNC1, lac := LAC1, cid := CID1, rxl := RXL1},
