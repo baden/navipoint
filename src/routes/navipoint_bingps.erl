@@ -24,6 +24,7 @@ get(#{params := #{<<"cmd">> := <<"CCLK">>}} = _Query) ->
     #{response => RespBody, nocommands => true}.
 
 post(Body, #{skey := Skey}) ->
+    ct:pal("~nnavipoint_bingps post Skey=~p~n~n", [Skey]),
     repr(parsebingps(Skey, Body)).
 
 repr({ok, Last}) ->
@@ -43,11 +44,11 @@ repr({ok, Last}) ->
 
 repr(dataerror) ->
     navistats:notify(point_error_data, {inc, 1}),
-    #{response => <<"BINGPS: DATAERROR\r\n">>, dynamic => #{error => <<"dataerror">>}};
+    #{response => <<"BINGPS: DATAERROR\r\n">>, dynamic => #{<<"error">> => <<"dataerror">>}};
 
 repr(crcerror) ->
     navistats:notify(point_error_crc, {inc, 1}),
-    #{response => <<"BINGPS: CRCERROR\r\n">>, dynamic => #{error => <<"crcerror">>}}.
+    #{response => <<"BINGPS: CRCERROR\r\n">>, dynamic => #{<<"error">> => <<"crcerror">>}}.
 
 
 

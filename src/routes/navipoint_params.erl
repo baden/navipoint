@@ -12,17 +12,18 @@ get(#{skey := Skey, params := Params}) ->
     #{response => RespBody, nocommands => true}.
 
 get(Skey, <<"params">>) ->
-    Answer = case navidb:get(params, {id, Skey}) of
+    Answer = case navidb:get(params, Skey) of
         % #{} ->   % Странно, очередь пуста, возможно нажали отмену
         %     navidb:delete_command(Skey),
         %     <<>>;
         % #{queue := #{}} ->
         %     navidb:delete_command(Skey),
         %     <<>>;
-        #{queue := Queue} ->
+        #{<<"queue">> := Queue} ->
             maps:fold(
                 fun(Key, Value, Acc) ->
-                    KeyB = atom_to_binary(Key, latin1),
+                    % KeyB = atom_to_binary(Key, latin1),
+                    KeyB = binary:replace(Key, <<$#>>, <<$.>>, [global]),
                     <<"PARAM ", KeyB/binary, " ", Value/binary, "\r\n", Acc/binary>>
                 end,
                 <<>>,
@@ -36,14 +37,14 @@ get(Skey, <<"params">>) ->
 
 get(Skey, <<"confirm">>) ->
     % TODO: Не самое оптимальное решение из-за обновления за два этапа
-    case navidb:get(params, {id, Skey}) of
+    case navidb:get(params, Skey) of
         % #{} ->   % Странно, очередь пуста, возможно нажали отмену
         %     navidb:set(params, Skey, #{queue => #{}}),
         %     ok;
         % #{<<"queue">> := #{}} ->
         %     navidb:set(params, Skey, {queue, {}}),
         %     ok;
-        #{queue := Queue} ->
+        #{<<"queue">> := Queue} ->
             % Сформируем запрос вида
             % {$set, {'data.PRARAM.value', VALUE}}
             % Этот метод теперь не работает
@@ -51,16 +52,18 @@ get(Skey, <<"confirm">>) ->
                 fun(Key, Value, Acc) ->
                     % [<<"data.", (navidb_mongodb:tokey(Key))/binary, ".value">>, Value] ++ Acc
                     % maps:put(<<"data.", (navidb_mongodb:tokey(Key))/binary, ".value">>, Value, Acc)
-                    maps:put([data, Key, value], Value, Acc)
+                    maps:put(<<"data.", Key/binary, ".value">>, Value, Acc)
+                    % maps:put([data, Key, value], Value, Acc)
                 end,
-                #{queue => #{}},
+                #{<<"queue">> => #{}},
                 Queue
             ),
-            Update = #{'$set' => Doc},
+            Update = #{<<"$set">> => Doc},
+            ct:pal("Update = ~p", [Update]),
             navidb:update(params, Skey, Update);
         % No Queue
         _Other ->
-            navidb:set(params, Skey, #{queue => #{}}),
+            navidb:set(params, Skey, #{<<"queue">> => #{}}),
             ok
     end,
     % Когда улучшим механизм оповещения, можно будет сделать за одну операцию

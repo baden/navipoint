@@ -34,7 +34,7 @@ get(Config, Url, Params) ->
     Path = Url ++ "?imei=" ++ url_encode(binary_to_list(Imei)) ++
      lists:flatten(maps:fold(
         fun(Key, Value, Acc) ->
-            Element = "&" ++ atom_to_list(Key) ++ "=" ++ url_encode(Value),
+            Element = "&" ++ to_list(Key) ++ "=" ++ url_encode(Value),
             % Element = io_lib:format("&~p=~p", [Key, url_encode(Value)]),
             [Element | Acc]
         end,
@@ -42,7 +42,8 @@ get(Config, Url, Params) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
+    % {ok, ConnPid} = gun:open(Host, Port, #{retry => 0, type => tcp}),
+    {ok, ConnPid} = gun:open(Host, Port),
     Headers = [],
     Ref = gun:get(ConnPid, Path, Headers),
     Response = case gun:await(ConnPid, Ref) of
@@ -58,6 +59,10 @@ get(Config, Url, Params) ->
     gun:close(ConnPid),
     Response.
 
+to_list(P) when is_atom(P) -> atom_to_list(P);
+to_list(P) when is_binary(P) -> binary_to_list(P);
+to_list(P) when is_list(P) -> P.
+
 post(Config, Url, Params, Payload) ->
     Imei = ?config(imei, Config),
     Host = ?config(host, Config),
@@ -68,7 +73,7 @@ post(Config, Url, Params, Payload) ->
     Path = Url ++ "?imei=" ++ url_encode(binary_to_list(Imei)) ++
      lists:flatten(maps:fold(
         fun(Key, Value, Acc) ->
-            Element = "&" ++ atom_to_list(Key) ++ "=" ++ url_encode(Value),
+            Element = "&" ++ to_list(Key) ++ "=" ++ url_encode(Value),
             % Element = io_lib:format("&~p=~p", [Key, url_encode(Value)]),
             [Element | Acc]
         end,
@@ -76,7 +81,8 @@ post(Config, Url, Params, Payload) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
+    {ok, ConnPid} = gun:open(Host, Port),
+    % {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
     Ref = gun:post(ConnPid, Path, Headers, Payload),
     Response = case gun:await(ConnPid, Ref) of
         {response, nofin, Status, RespHeaders} ->

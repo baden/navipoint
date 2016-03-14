@@ -18,16 +18,18 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     Params = maps:from_list(cowboy_req:bindings(Req)),
     Query  = maps:from_list(cowboy_req:parse_qs(Req)),
 
+    % ct:pal("~nupgrade Params=~p Query=~p~n~n", [Params, Query]),
+
     Csq  = int_value(csq, Query),
     Vin  = int_value(vin, Query, -1),
     Vout = int_value(vout, Query, -1),
 
     DynamicInit = #{
-        lastping => unixtime(),
-        method   => Method,
-        csq      => Csq,
-        vin      => Vin / 1000,
-        vout     => Vout / 1000
+        <<"lastping">> => unixtime(),
+        <<"method">>   => Method,
+        <<"csq">>      => Csq,
+        <<"vin">>      => Vin / 1000,
+        <<"vout">>     => Vout / 1000
     },
 
     % Все входящие сообщения должны содержать параметр imei. Иначе отбой соединения
@@ -41,7 +43,10 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
             System = case Method of
                 <<"OPTIONS">> -> undefined;
                 _ ->
-                    navidb:get(system, Skey, cached)
+                    % ct:pal("GET", []),
+                    CachedSys = navidb:get(system, Skey, cached),
+                    % ct:pal("CachedSys = ~p~n", [CachedSys]),
+                    CachedSys
                 end,
 
             State = #{
@@ -52,6 +57,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                 method => Method,
                 dynamic => DynamicInit
             },
+            % ct:pal("== Method = ~p, Handler = ~p, Req = ~p, State = ~p~n", [Method, Handler, Req, State]),
 
             Req4 =
             try handle(Method, Handler, Req, State) of
@@ -61,7 +67,8 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                         {<<"content-type">>, <<"application/octet-stream">>}
                     ], RespBody, cors(Req));
                 #{dynamic := Dynamic, response := RespBody} ->
-                    navidb:set(dynamic, Skey, maps:merge(DynamicInit, Dynamic)),
+                    Res = navidb:set(dynamic, Skey, maps:merge(DynamicInit, Dynamic)),
+                    % ct:pal("navidb:set(dynamic, ~p, ~p) Res = ~p~n", [Skey, maps:merge(DynamicInit, Dynamic), Res]),
                     cowboy_req:reply(200, [
                         {<<"content-type">>, <<"application/octet-stream">>}
                     ], RespBody, cors(Req));
@@ -91,9 +98,11 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     end.
 
 handle(<<"GET">>, Handler, _Req, State) ->
+    ct:pal("~nget~n~n", []),
     Handler:get(State);
 
 handle(<<"POST">>, Handler, Req, State) ->
+    ct:pal("~npost~n~n", []),
     {ok, Body, _Req1} = cowboy_req:body(Req),
     Handler:post(Body, State);
 

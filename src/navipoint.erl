@@ -232,24 +232,24 @@ point_to_doc(<<255, 16#F5,          % Пакет 0xF5
     % ?INFO("ADC_LSB = ~w", [ADC_LSB]),
 
     #{
-        fsource     => FSOURCE,
-        sats        => SATS,
-        dt          => DATETIME,
-        latitude    => LATITUDE / 600000.0,
-        longitude   => LONGITIDE / 600000.0,
-        speed       => SPEED * 1.852 / 100.0,
-        alt         => ALTITUDE,
-        course      => DIR * 2,
-        vout        => (VOUT * 4 + VOUTL) / 10.0,
-        vin         => (VIN * 4 + VINL) / 100.0,
-        fuel        => ADC2 * 4 + ADC2L,
-        adc1        => ADC1 * 4 + ADC1L,
-        res1        => RES1,
-        res2        => RES2,
-        res3        => RES3,
-        res4        => RES4,
-        res5        => RES5,
-        raw         => binary_to_list(Packet)
+        <<"fsource">>     => FSOURCE,
+        <<"sats">>        => SATS,
+        <<"dt">>          => DATETIME,
+        <<"latitude">>    => LATITUDE / 600000.0,
+        <<"longitude">>   => LONGITIDE / 600000.0,
+        <<"speed">>       => SPEED * 1.852 / 100.0,
+        <<"alt">>         => ALTITUDE,
+        <<"course">>      => DIR * 2,
+        <<"vout">>        => (VOUT * 4 + VOUTL) / 10.0,
+        <<"vin">>         => (VIN * 4 + VINL) / 100.0,
+        <<"fuel">>        => ADC2 * 4 + ADC2L,
+        <<"adc1">>        => ADC1 * 4 + ADC1L,
+        <<"res1">>        => RES1,
+        <<"res2">>        => RES2,
+        <<"res3">>        => RES3,
+        <<"res4">>        => RES4,
+        <<"res5">>        => RES5,
+        <<"raw">>         => binary_to_list(Packet)
     };
 
 point_to_doc(<<255, 16#E1,          % Пакет 0xE1 - Определение положения по сотовым вышкам (примерное)
@@ -276,26 +276,26 @@ point_to_doc(<<255, 16#E1,          % Пакет 0xE1 - Определение �
     MNC = MCC_MNC rem 100,
 
     #{
-        alt         => <<"GSM6CELL">>,
-        dt          => DATETIME,
-        mcc         => MCC,
-        mnc         => MNC,
-        lac         => LAC,
-        cid0        => CID0,
-        cid1        => CID1,
-        cid2        => CID2,
-        cid3        => CID3,
-        cid4        => CID4,
-        cid5        => CID5,
-        cid6        => CID6,
-        rxl0        => RXL0,
-        rxl1        => RXL1,
-        rxl2        => RXL2,
-        rxl3        => RXL3,
-        rxl4        => RXL4,
-        rxl5        => RXL5,
-        rxl6        => RXL6,
-        raw         => binary_to_list(Packet)
+        <<"alt">>         => <<"GSM6CELL">>,
+        <<"dt">>          => DATETIME,
+        <<"mcc">>         => MCC,
+        <<"mnc">>         => MNC,
+        <<"lac">>         => LAC,
+        <<"cid0">>        => CID0,
+        <<"cid1">>        => CID1,
+        <<"cid2">>        => CID2,
+        <<"cid3">>        => CID3,
+        <<"cid4">>        => CID4,
+        <<"cid5">>        => CID5,
+        <<"cid6">>        => CID6,
+        <<"rxl0">>        => RXL0,
+        <<"rxl1">>        => RXL1,
+        <<"rxl2">>        => RXL2,
+        <<"rxl3">>        => RXL3,
+        <<"rxl4">>        => RXL4,
+        <<"rxl5">>        => RXL5,
+        <<"rxl6">>        => RXL6,
+        <<"raw">>         => binary_to_list(Packet)
     };
 
 point_to_doc(<<255, 16#E3,   % Пакет 0xE3 - Определение положения по сотовым вышкам (примерное)
@@ -331,20 +331,20 @@ point_to_doc(<<255, 16#E3,   % Пакет 0xE3 - Определение поло
     MCC6 = (MCC_MNC6 div 100) + 200, MNC6 = MCC_MNC6 rem 100,
 
     #{
-        alt         => <<"GSM6CELL">>,
-        dt          => DATETIME,
-        latitude    => LATITUDE / 600000.0,
-        longitude   => LONGITIDE / 600000.0,
-        cells       => [
-            #{mcc => MCC0, mnc => MNC0, lac => LAC0, cid => CID0, rxl => RXL0, ta => TA0},
-            #{mcc => MCC1, mnc => MNC1, lac => LAC1, cid => CID1, rxl => RXL1},
-            #{mcc => MCC2, mnc => MNC2, lac => LAC2, cid => CID2, rxl => RXL2},
-            #{mcc => MCC3, mnc => MNC3, lac => LAC3, cid => CID3, rxl => RXL3},
-            #{mcc => MCC4, mnc => MNC4, lac => LAC4, cid => CID4, rxl => RXL4},
-            #{mcc => MCC5, mnc => MNC5, lac => LAC5, cid => CID5, rxl => RXL5},
-            #{mcc => MCC6, mnc => MNC6, lac => LAC6, cid => CID6, rxl => RXL6}
+        <<"alt">>         => <<"GSM6CELL">>,
+        <<"dt">>          => DATETIME,
+        <<"latitude">>    => LATITUDE / 600000.0,
+        <<"longitude">>   => LONGITIDE / 600000.0,
+        <<"cells">>       => [
+            #{<<"mcc">> => MCC0, <<"mnc">> => MNC0, <<"lac">> => LAC0, <<"cid">> => CID0, <<"rxl">> => RXL0, <<"ta">> => TA0},
+            #{<<"mcc">> => MCC1, <<"mnc">> => MNC1, <<"lac">> => LAC1, <<"cid">> => CID1, <<"rxl">> => RXL1},
+            #{<<"mcc">> => MCC2, <<"mnc">> => MNC2, <<"lac">> => LAC2, <<"cid">> => CID2, <<"rxl">> => RXL2},
+            #{<<"mcc">> => MCC3, <<"mnc">> => MNC3, <<"lac">> => LAC3, <<"cid">> => CID3, <<"rxl">> => RXL3},
+            #{<<"mcc">> => MCC4, <<"mnc">> => MNC4, <<"lac">> => LAC4, <<"cid">> => CID4, <<"rxl">> => RXL4},
+            #{<<"mcc">> => MCC5, <<"mnc">> => MNC5, <<"lac">> => LAC5, <<"cid">> => CID5, <<"rxl">> => RXL5},
+            #{<<"mcc">> => MCC6, <<"mnc">> => MNC6, <<"lac">> => LAC6, <<"cid">> => CID6, <<"rxl">> => RXL6}
         ],
-        raw         => binary_to_list(Packet)
+        <<"raw">>         => binary_to_list(Packet)
     };
 
 
@@ -356,56 +356,56 @@ point_to_doc(<<255, 16#E2,          % Пакет 0xE2 - Определение �
     _:16/binary>> = Packet) ->                       % Res2
 
     #{
-        alt         => <<"GSMCELL">>,
-        dt          => DATETIME,
-        latitude    => LATITUDE / 1000000.0,
-        longitude   => LONGITIDE / 1000000.0,
-        res0        => 0,
-        raw         => binary_to_list(Packet)
+        <<"alt">>         => <<"GSMCELL">>,
+        <<"dt">>          => DATETIME,
+        <<"latitude">>    => LATITUDE / 1000000.0,
+        <<"longitude">>   => LONGITIDE / 1000000.0,
+        <<"res0">>        => 0,
+        <<"raw">>         => binary_to_list(Packet)
     };
 
 point_to_doc(undefined) ->
     #{
-        fsource     => 0,
-        sats        => 0,
-        dt          => 0,
-        latitude    => 0.0,
-        longitude   => 0.0,
-        speed       => 0.0,
-        alt         => 0,
-        course      => 0,
-        vout        => 0.0,
-        vin         => 0.0,
-        fuel        => 0.0,
-        adc1        => 0.0,
-        res1        => 0,
-        res2        => 0,
-        res3        => 0,
-        res4        => 0,
-        res5        => 0,
-        raw         => []
+        <<"fsource">>     => 0,
+        <<"sats">>        => 0,
+        <<"dt">>          => 0,
+        <<"latitude">>    => 0.0,
+        <<"longitude">>   => 0.0,
+        <<"speed">>       => 0.0,
+        <<"alt">>         => 0,
+        <<"course">>      => 0,
+        <<"vout">>        => 0.0,
+        <<"vin">>         => 0.0,
+        <<"fuel">>        => 0.0,
+        <<"adc1">>        => 0.0,
+        <<"res1">>        => 0,
+        <<"res2">>        => 0,
+        <<"res3">>        => 0,
+        <<"res4">>        => 0,
+        <<"res5">>        => 0,
+        <<"raw">>         => []
     };
 
 point_to_doc(Packet) ->
     #{
-        fsource     => 0,
-        sats        => 0,
-        dt          => 0,
-        latitude    => 0.0,
-        longitude   => 0.0,
-        speed       => 0.0,
-        alt         => 0,
-        course      => 0,
-        vout        => 0.0,
-        vin         => 0.0,
-        fuel        => 0.0,
-        adc1        => 0.0,
-        res1        => 0,
-        res2        => 0,
-        res3        => 0,
-        res4        => 0,
-        res5        => 0,
-        raw         => binary_to_list(Packet)
+        <<"fsource">>     => 0,
+        <<"sats">>        => 0,
+        <<"dt">>          => 0,
+        <<"latitude">>    => 0.0,
+        <<"longitude">>   => 0.0,
+        <<"speed">>       => 0.0,
+        <<"alt">>         => 0,
+        <<"course">>      => 0,
+        <<"vout">>        => 0.0,
+        <<"vin">>         => 0.0,
+        <<"fuel">>        => 0.0,
+        <<"adc1">>        => 0.0,
+        <<"res1">>        => 0,
+        <<"res2">>        => 0,
+        <<"res3">>        => 0,
+        <<"res4">>        => 0,
+        <<"res5">>        => 0,
+        <<"raw">>         => binary_to_list(Packet)
     }.
 
 

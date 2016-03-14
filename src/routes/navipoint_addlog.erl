@@ -22,27 +22,32 @@ addlog(Skey, <<"balance">>, _Text, Params) ->
     Dt = unixtime(),
 
     % navidb_mongodb:insert(?DB_BALANCE, Document),
-    Record = #{'value' => Value, 'dt' => Dt},
-    navidb:update(systems, Skey, #{'$set' => #{'balance' => Record}}),
+    Record = #{<<"value">> => Value, <<"dt">> => Dt},
+    navidb:update(systems, Skey, #{<<"$set">> => #{<<"balance">> => Record}}),
     #{response => <<"ADDLOG: OK\r\n">>};
 
 addlog(Skey, _MType, Text, _Params) ->
     Document = #{
-        'system' => Skey,
-        'dt'     => unixtime(),
-        'text'   => Text
+        <<"system">> => Skey,
+        <<"dt">>     => unixtime(),
+        <<"text">>   => Text
     },
 
     navidb:insert(logs, Document),
 
     % Образес сообщения с версией:
     % "Test message. Version line HWID:<b>3081</b> SWID:<b>302E</b>"
-    {ok, RE_ID} = re:compile("HWID:<b>([0-9A-Z]+)</b>.*SWID:<b>([0-9A-Z]+)</b>"),
+    {ok, RE_ID} = re:compile("HWID:<b>([0-9A-Z_]+)</b>.*SWID:<b>([0-9A-Z_]+)</b>"),
 
     case re:run(Text, RE_ID, [{capture, [1,2], list}]) of
         {match, [HWID, SWID]} ->
             % TODO: заменить на set?
-            navidb:update(systems, Skey, #{'$set' => #{'hwid' => list_to_binary(HWID), 'swid' => list_to_binary(SWID)}}),
+            navidb:update(systems, Skey, #{
+                <<"$set">> => #{
+                    <<"hwid">> => list_to_binary(HWID),
+                    <<"swid">> => list_to_binary(SWID)
+                }
+            }),
             ok;
         _ -> ok
     end,

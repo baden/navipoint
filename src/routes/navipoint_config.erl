@@ -14,14 +14,15 @@ post(Body, #{skey := Skey, params := Query}) ->
                 ["END"] ->
                     Acc;
                 [KEY, TYPE, VALUE, DEFAULT] ->
-                    Key = list_to_binary(KEY),
+                    % TODO: Replace "." for "#"
+                    Key = binary:replace(list_to_binary(KEY), <<$.>>, <<$#>>, [global]),
                     Value = binary:replace(list_to_binary(VALUE), <<"\"">>, <<"">>, [global]),
                     Default = binary:replace(list_to_binary(DEFAULT), <<"\"">>, <<"">>, [global]),
 
                     Element = #{
-                        type    => list_to_binary(TYPE),
-                        value   => Value,
-                        default => Default
+                        <<"type">>    => list_to_binary(TYPE),
+                        <<"value">>   => Value,
+                        <<"default">> => Default
                     },
                     maps:put(Key, Element, Acc)
             end
@@ -30,12 +31,12 @@ post(Body, #{skey := Skey, params := Query}) ->
         Lines
     ),
 
-    navidb:set(params, Skey, #{data => Parced}),
+    navidb:set(params, Skey, #{<<"data">> => Parced}),
 
     case maps:get(<<"phone">>, Query, undefined) of
         undefined -> ok;
         Phone ->
-            navidb:set(systems, Skey, #{phone => Phone})
+            navidb:set(systems, Skey, #{<<"phone">> => Phone})
     end,
 
     #{response => <<"CONFIG: OK\r\n">>}.

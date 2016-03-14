@@ -28,13 +28,19 @@ end_per_testcase(_Case, Config) ->
 errors(Config) ->
     Skey = base64:encode(?config(imei, Config)),
 
+    io:format("~nboo Config~p ~n~n", [Config]),
+
     Body1 = <<16#FF, 16#E2>>,
-    {200, _, <<"BINGPS: DATAERROR\r\n">>} = helper:post(Config, "/bingps", #{}, Body1),
-    #{dynamic := #{error := <<"dataerror">>}} = navidb:get(systems, Skey),
+    {200, _, <<"BINGPS: DATAERROR\r\n">>} = Resp = helper:post(Config, "/bingps", #{}, Body1),
+    io:format("~nboo Resp=~p ~n~n", [Resp]),
+
+    Doc = navidb:get(systems, Skey),
+    io:format("~nboo navidb:get(systems, ~p) Doc=~p ~n~n", [Skey, Doc]),
+    #{<<"dynamic">> := #{<<"error">> := <<"dataerror">>}} = Doc,% = navidb:get(systems, Skey),
 
     Body2 = <<0:(32*8)/little-unsigned-integer, 1, 2>>,
     {200, _, <<"BINGPS: CRCERROR\r\n">>} = helper:post(Config, "/bingps", #{}, Body2),
-    #{dynamic := #{error := <<"crcerror">>}} = navidb:get(systems, Skey),
+    #{<<"dynamic">> := #{<<"error">> := <<"crcerror">>}} = navidb:get(systems, Skey),
 
     ok.
 
@@ -79,10 +85,10 @@ e1(Config) ->
   CRC = helper:crc(FakeE1Packet),
   Body = <<FakeE1Packet/binary, CRC:16/little-unsigned-integer>>,
   Extra = #{
-    csq  => 21,
-    vout => 13970,
-    vin  => 4170,
-    dataid => <<"00015B86">>
+    <<"csq">>  => 21,
+    <<"vout">> => 13970,
+    <<"vin">>  => 4170,
+    <<"dataid">> => <<"00015B86">>
   },
   {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Config, "/bingps", Extra, Body),
 
@@ -90,26 +96,26 @@ e1(Config) ->
   {ok, _FakeE1Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
   ct:pal("FakeE1Packet = ~p~n", [_FakeE1Packet]),
 
-  #{dynamic := #{
-      alt  := <<"GSM6CELL">>,
-      dt  := Datetime,
-      mcc := 255,
-      mnc := 3,
-      lac := 47080,
-      cid0 := 1461,
-      cid1 := 1462,
-      cid2 := 9461,
-      cid3 := 17403,
-      cid4 := 1463,
-      cid5 := 28793,
-      cid6 := 17401,
-      rxl0 := 52,
-      rxl1 := 32,
-      rxl2 := 30,
-      rxl3 := 26,
-      rxl4 := 24,
-      rxl5 := 19,
-      rxl6 := 13
+  #{<<"dynamic">> := #{
+      <<"alt">>  := <<"GSM6CELL">>,
+      <<"dt">>  := Datetime,
+      <<"mcc">> := 255,
+      <<"mnc">> := 3,
+      <<"lac">> := 47080,
+      <<"cid0">> := 1461,
+      <<"cid1">> := 1462,
+      <<"cid2">> := 9461,
+      <<"cid3">> := 17403,
+      <<"cid4">> := 1463,
+      <<"cid5">> := 28793,
+      <<"cid6">> := 17401,
+      <<"rxl0">> := 52,
+      <<"rxl1">> := 32,
+      <<"rxl2">> := 30,
+      <<"rxl3">> := 26,
+      <<"rxl4">> := 24,
+      <<"rxl5">> := 19,
+      <<"rxl6">> := 13
   }} = navidb:get(systems, Skey),
 
   ok.
@@ -132,23 +138,23 @@ e2(Config) ->
     CRC = helper:crc(FakeE2Packet),
     Body = <<FakeE2Packet/binary, CRC:16/little-unsigned-integer>>,
     Extra = #{
-        csq  => 21,
-        vout => 13970,
-        vin  => 4170,
-        dataid => <<"00015B86">>
+        <<"csq">>  => 21,
+        <<"vout">> => 13970,
+        <<"vin">>  => 4170,
+        <<"dataid">> => <<"00015B86">>
     },
     {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Config, "/bingps", Extra, Body),
 
     Skey = base64:encode(?config(imei, Config)),
     {ok, FakeE2Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
 
-    #{dynamic := #{
-        csq       := 21,
-        dt        := 1409680257,
-        latitude  := 48.501829,
-        longitude := 34.623322,
-        vin       := 4.17,
-        vout      := 13.97
+    #{<<"dynamic">> := #{
+        <<"csq">>       := 21,
+        <<"dt">>        := 1409680257,
+        <<"latitude">>  := 48.501829,
+        <<"longitude">> := 34.623322,
+        <<"vin">>       := 4.17,
+        <<"vout">>      := 13.97
     }} = navidb:get(systems, Skey),
 
     ok.
@@ -193,10 +199,10 @@ e3(Config) ->
     CRC = helper:crc(FakeE3Packet),
     Body = <<FakeE3Packet/binary, CRC:16/little-unsigned-integer>>,
     Extra = #{
-        csq  => 21,
-        vout => 13970,
-        vin  => 4170,
-        dataid => <<"00015B86">>
+        <<"csq">>  => 21,
+        <<"vout">> => 13970,
+        <<"vin">>  => 4170,
+        <<"dataid">> => <<"00015B86">>
     },
     {200, _, <<"BINGPS: OK\r\n">>} = helper:post(Config, "/bingps", Extra, Body),
 
@@ -206,19 +212,19 @@ e3(Config) ->
 
     ct:pal("Get = ~p", [navidb:get(systems, Skey)]),
 
-    #{dynamic := #{
-        alt  := <<"GSM6CELL">>,
-        dt  := Datetime,
-        latitude := Latitude,
-        longitude := Longitude,
-        cells := [
-            #{mcc := MCC0, mnc := MNC0, lac := LAC0, cid := CID0, rxl := RXL0, ta := TA0},
-            #{mcc := MCC1, mnc := MNC1, lac := LAC1, cid := CID1, rxl := RXL1},
-            #{mcc := MCC2, mnc := MNC2, lac := LAC2, cid := CID2, rxl := RXL2},
-            #{mcc := MCC3, mnc := MNC3, lac := LAC3, cid := CID3, rxl := RXL3},
-            #{mcc := MCC4, mnc := MNC4, lac := LAC4, cid := CID4, rxl := RXL4},
-            #{mcc := MCC5, mnc := MNC5, lac := LAC5, cid := CID5, rxl := RXL5},
-            #{mcc := MCC6, mnc := MNC6, lac := LAC6, cid := CID6, rxl := RXL6}
+    #{<<"dynamic">> := #{
+        <<"alt">>  := <<"GSM6CELL">>,
+        <<"dt">>  := Datetime,
+        <<"latitude">> := Latitude,
+        <<"longitude">> := Longitude,
+        <<"cells">> := [
+            #{<<"mcc">> := MCC0, <<"mnc">> := MNC0, <<"lac">> := LAC0, <<"cid">> := CID0, <<"rxl">> := RXL0, <<"ta">> := TA0},
+            #{<<"mcc">> := MCC1, <<"mnc">> := MNC1, <<"lac">> := LAC1, <<"cid">> := CID1, <<"rxl">> := RXL1},
+            #{<<"mcc">> := MCC2, <<"mnc">> := MNC2, <<"lac">> := LAC2, <<"cid">> := CID2, <<"rxl">> := RXL2},
+            #{<<"mcc">> := MCC3, <<"mnc">> := MNC3, <<"lac">> := LAC3, <<"cid">> := CID3, <<"rxl">> := RXL3},
+            #{<<"mcc">> := MCC4, <<"mnc">> := MNC4, <<"lac">> := LAC4, <<"cid">> := CID4, <<"rxl">> := RXL4},
+            #{<<"mcc">> := MCC5, <<"mnc">> := MNC5, <<"lac">> := LAC5, <<"cid">> := CID5, <<"rxl">> := RXL5},
+            #{<<"mcc">> := MCC6, <<"mnc">> := MNC6, <<"lac">> := LAC6, <<"cid">> := CID6, <<"rxl">> := RXL6}
         ]
     }} = navidb:get(systems, Skey),
 
@@ -226,7 +232,7 @@ e3(Config) ->
 
 
 cclk(Config) ->
-    {200, _, Resp} = helper:get(Config, "/bingps", #{cmd => <<"CCLK">>}),
+    {200, _, Resp} = helper:get(Config, "/bingps", #{<<"cmd">> => <<"CCLK">>}),
     ct:pal("Resp = ~p", [Resp]),
     {match, [Year, Month, Day, Hour, Minutes, Seconds]} = re:run(
         Resp,
