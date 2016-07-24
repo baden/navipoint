@@ -42,7 +42,7 @@ get(Config, Url, Params) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
+    {ok, ConnPid} = gun:open(Host, Port, #{retry => 0}),
     Headers = [],
     Ref = gun:get(ConnPid, Path, Headers),
     Response = case gun:await(ConnPid, Ref) of
@@ -76,7 +76,7 @@ post(Config, Url, Params, Payload) ->
         Params
     )),
 
-    {ok, ConnPid} = gun:open(Host, Port, [{retry, 0}, {type, tcp}]),
+    {ok, ConnPid} = gun:open(Host, Port, #{retry => 0}),
     Ref = gun:post(ConnPid, Path, Headers, Payload),
     Response = case gun:await(ConnPid, Ref) of
         {response, nofin, Status, RespHeaders} ->
