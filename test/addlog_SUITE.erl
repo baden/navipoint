@@ -8,7 +8,7 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ test1, hwid, balance ].
+all() -> [ test1, post_version_of_addlog_method, hwid, balance ].
 
 % -define(POINT_PORT, 8981).
 
@@ -33,6 +33,16 @@ test1(Config) ->
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     ?assertMatch(#{system := Skey, text := Text}, Doc),
     ok.
+
+post_version_of_addlog_method(Config) ->
+    Text = helper:random_string(),
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:post(Config, "/addlog", #{}, Text),
+
+    Skey = base64:encode(?config(imei, Config)),
+    [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ok.
+
 
 hwid(Config) ->
     Text = "Test message. Version line HWID:<b>3081</b> SWID:<b>302E</b>",

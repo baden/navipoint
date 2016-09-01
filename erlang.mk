@@ -16,7 +16,7 @@
 
 ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 
-ERLANG_MK_VERSION = 2.0.0-pre.2-130-gc6fe5ea
+ERLANG_MK_VERSION = 2.0.0-pre.2-131-g654c74a
 
 # Core configuration.
 
@@ -1291,6 +1291,14 @@ pkg_erlang_term_homepage = https://github.com/okeuday/erlang_term
 pkg_erlang_term_fetch = git
 pkg_erlang_term_repo = https://github.com/okeuday/erlang_term
 pkg_erlang_term_commit = master
+
+PACKAGES += erlangzmq
+pkg_erlangzmq_name = erlangzmq
+pkg_erlangzmq_description = Native Erlang implemention of ZeroMQ Message Transport Protocol.
+pkg_erlangzmq_homepage = http://choven.ca
+pkg_erlangzmq_fetch = git
+pkg_erlangzmq_repo = https://github.com/chovencorp/erlangzmq
+pkg_erlangzmq_commit = master
 
 PACKAGES += erlastic_search
 pkg_erlastic_search_name = erlastic_search

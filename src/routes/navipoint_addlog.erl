@@ -1,7 +1,7 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_addlog).
 
--export([init/2, get/1]).
+-export([init/2, get/1, post/2]).
 
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
@@ -10,6 +10,10 @@ get(#{skey := Skey, params := Params} = _Query) ->
     Text = maps:get(<<"text">>, Params, undefined),
     MType = maps:get(<<"mtype">>, Params, undefined),
     addlog(Skey, MType, Text, Params).
+
+post(Body, #{skey := Skey, params := Params}) ->
+    MType = maps:get(<<"mtype">>, Params, undefined),
+    addlog(Skey, MType, Body, Params).
 
 addlog(Skey, <<"balance">>, _Text, Params) ->
     PValue = maps:get(<<"value">>, Params, <<"0">>),
