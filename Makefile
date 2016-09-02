@@ -1,4 +1,5 @@
 # See LICENSE for licensing information.
+.SILENT:
 
 PROJECT = navipoint
 
