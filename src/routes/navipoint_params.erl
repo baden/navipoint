@@ -1,7 +1,8 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_params).
+-behaviour(navipoint_sub_protocol).
 
--export([init/2, get/1]).
+-export([init/2, get/1, post/2]).
 
 -spec init(any(), any()) -> {atom(), any(), any()}.
 init(Req, Opts) ->
@@ -72,3 +73,7 @@ get(Skey, <<"confirm">>) ->
 % get(_Skey, Query, _State, _) ->
 %     lager:error("Unsupporter cmd command for /params (IMEI=~p)", [proplists:get_value(<<"imei">>, Query)]),
 %     <<"ERROR: UNSUPPORTED CMD\r\n">>.
+
+-spec post(binary(), map:map()) -> map:map() | notfound.
+post(_Body, _Query) ->
+    notfound.

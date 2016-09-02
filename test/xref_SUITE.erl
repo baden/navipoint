@@ -6,14 +6,17 @@
 
 -spec all() -> [xref].
 all() -> [
-    % xref
+    xref
 ].
 
 -spec xref(lsl_test_utils:config()) -> {comment, []}.
 xref(_Config) ->
   Dirs = [filename:absname("../../ebin")],
-  [] = xref_runner:check(undefined_function_calls, #{dirs => Dirs}),
+  % Dirs = [filename:absname("../../test")],
+  ct:pal("Dirs = ~p", [Dirs]),
+  % [] = xref_runner:check(undefined_function_calls, #{dirs => Dirs}),
   [] = xref_runner:check(locals_not_used, #{dirs => Dirs}),
   [] = xref_runner:check(deprecated_function_calls, #{dirs => Dirs}),
   [] = xref_runner:check(deprecated_functions, #{dirs => Dirs}),
+  % [] = xref_runner:check(exports_not_used, #{dirs => Dirs}),
   {comment, ""}.

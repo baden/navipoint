@@ -1,5 +1,6 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_addlog).
+-behaviour(navipoint_sub_protocol).
 
 -export([init/2, get/1, post/2]).
 

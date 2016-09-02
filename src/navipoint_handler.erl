@@ -2,6 +2,7 @@
 -module(navipoint_handler).
 
 % -behaviour(navipoint_sub_protocol).
+-behaviour(cowboy_sub_protocol).
 
 -export([
         upgrade/6
@@ -67,6 +68,10 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
 
             Req4 =
             try handle(Method, Handler, Req, State) of
+                notfound ->
+                    cowboy_req:reply(404, [
+                        {<<"content-type">>, <<"application/octet-stream">>}
+                    ], <<"NOT_FOUND\r\n">>, Req);
                 #{nocommands := true, response := RespBody} ->
                     navidb:set(dynamic, Skey, DynamicInit),
                     cowboy_req:reply(200, [

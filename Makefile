@@ -23,7 +23,7 @@ PLT_APPS = crypto public_key ssl
 
 DEPS = lager cowboy jsxn navidb navistats
 # TEST_DEPS = ct_helper gun
-TEST_DEPS = gun erlware_commons
+TEST_DEPS = gun erlware_commons xref_runner
 # dep_ct_helper = git https://github.com/extend/ct_helper.git master
 
 #dep_cowboy = git git://github.com/ninenines/cowboy.git 2.0.0-pre.1

@@ -1,11 +1,16 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_config).
+-behaviour(navipoint_sub_protocol).
 
--export([init/2, post/2]).
+-export([init/2, get/1, post/2]).
 
 -spec init(any(), any()) -> {atom(), any(), any()}.
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
+
+-spec get(map:map()) -> map:map().
+get(_Query) ->
+    notfound.
 
 -spec post(binary(), map:map()) -> map:map().
 post(Body, #{skey := Skey, params := Query}) ->

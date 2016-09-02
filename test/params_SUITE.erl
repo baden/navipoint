@@ -8,7 +8,11 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ empty, data ].
+all() -> [
+    empty
+    , data
+    , notfound
+].
 
 % -define(POINT_PORT, 8981).
 
@@ -88,4 +92,8 @@ data(Config) ->
     Text2 = helper:random_string(),
     {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Config, "/addlog", #{text => Text2}),
     % ct:pal("Response1 = ~p", [Response1]),
+    ok.
+
+notfound(Config) ->
+    {404, _, <<"NOT_FOUND\r\n">>} = helper:post(Config, "/params", #{cmd => <<"whocare">>}, <<"BODY">>),
     ok.
