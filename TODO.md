@@ -1,3 +1,12 @@
+## Диализ
+
+Проблема во внешней библиотеке, спек для navidb:get описан неверно:
+
+```
+navipoint_params.erl:18: The call navidb:get('params',{<<_:16>>,_}) breaks the contract (Collection::atom(),Keys::[binary()]) -> [document()]
+navipoint_params.erl:42: The call navidb:get('params',{'id',_}) breaks the contract (Collection::atom(),Keys::[binary()]) -> [document()]
+```
+
 Пока просто ссылки насыпом:
 
 ## XREF

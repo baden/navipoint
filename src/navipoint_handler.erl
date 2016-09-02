@@ -14,7 +14,7 @@
 -callback get(map:map()) -> map:map().
 -callback post(binary(), map:map()) -> map:map().
 
--spec upgrade(_Req, _Env, _Handler, _HandlerState, infinity, run) -> {ok, any(), any()}.
+% -spec upgrade(_Req, _Env, _Handler, _HandlerState, infinity, run) -> {ok, any(), any()}.
 upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     navistats:notify(point, {inc, 1}),
     navistats:notify(point_meter, 1),
@@ -41,7 +41,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     % Все входящие сообщения должны содержать параметр imei. Иначе отбой соединения
     case maps:get(<<"imei">>, Query, undefined) of
         undefined ->
-            {ok, Req4} = cowboy_req:reply(
+            Req4 = cowboy_req:reply(
               500,
               [{<<"content-type">>, <<"application/octet-stream">>}],
               <<"ERROR: imei query must be defined">>,
@@ -84,9 +84,34 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                     ], RespBody, cors(Req));
                 #{response := RespBody} ->
                     navidb:set(dynamic, Skey, DynamicInit),
+                    % navipoint_handler.erl:87:
+                    % The call
+                    % navipoint_handler:commands(
+                    %   RespBody::any(),
+                    %   State::#{
+                    %       'dynamic':=#{
+                    %           'csq':=integer(),
+                    %           'lastping':=non_neg_integer(),
+                    %           'method':=binary(),
+                    %           'vin':=float(),
+                    %           'vout':=float()
+                    %       },
+                    %       'imei':=binary() | [1..255],
+                    %       'method':=binary(),
+                    %       'params':=#{
+                    %           atom() | binary()=>'true' | binary()
+                    %       },
+                    %       'skey':=binary(),
+                    %       'system':=_
+                    %   }
+                    % )
+                    % will never return since it differs in the 2nd argument from the success typing arguments:
+                    % (any(),#{'skey':=[binary()], _=>_})
+
+                    BodyPlusCommands = commands(RespBody, State),
                     cowboy_req:reply(200, [
                         {<<"content-type">>, <<"application/octet-stream">>}
-                    ], commands(RespBody, State), cors(Req))
+                    ], BodyPlusCommands, cors(Req))
                 % {error, ErrorRespBody} ->
                 %     cowboy_req:reply(400, [
                 %         {<<"content-type">>, <<"application/octet-stream">>}
@@ -122,6 +147,8 @@ handle(<<"OPTIONS">>, _Handler, _Req, _State) ->
     % cowboy_req:reply(200, [], <<"">>, Req).
 
 
+% -spec commands(binary(), map:map()) -> binary().
+-spec commands(binary(), #{'skey':=[binary()], _=>_}) -> binary().
 commands(Body, #{skey := Skey}) ->
     case navidb:get(command, Skey) of
         {ok, Command} ->
@@ -129,6 +156,8 @@ commands(Body, #{skey := Skey}) ->
         _ ->
             Body
     end.
+
+% commands(Body, _) -> Body.
 
 -spec terminate(_, _, _) -> ok.
 terminate(_Reason, _Req, _State) ->

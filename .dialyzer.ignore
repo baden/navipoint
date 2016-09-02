@@ -1,0 +1,4 @@
+### meck:code_cover.erl has to call this unexported functions to do its
+### cover passthrough magic:
+Call to missing or unexported function lager:error/2
+Call to missing or unexported function lager:warning/2

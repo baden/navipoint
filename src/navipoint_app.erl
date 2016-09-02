@@ -20,7 +20,7 @@
 %% Application callbacks
 %% ===================================================================
 
--spec start(_, _) -> pid().
+-spec start(_, _) -> {ok, pid()}.
 start(_StartType, _StartArgs) ->
     navipoint_sup:start_link().
 
@@ -44,7 +44,7 @@ start_phase(listen, _Type, _Args) ->
         ]}
     ],
 
-    cowboy:start_http(?APP, config(acceptors, 100),
+    {ok, _} = cowboy:start_http(?APP, config(acceptors, 100),
                       [{port, config(port)}],
                       [{env,
                         [{dispatch, cowboy_router:compile(Dispatch)}]}]),

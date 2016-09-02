@@ -47,7 +47,7 @@
 % Аккумулятор одного часа
 % Общий аккумулятор для функций update
 
--spec parse(binary()) -> {ok, list(), dict:dict()}.
+-spec parse(binary()) -> {ok, dict:dict(), map:map()}.
 parse(Bin) when is_binary(Bin) ->
     parse(Bin, undefined, [], dict:new()).
 
@@ -281,7 +281,7 @@ parse(<<>>, Last, [], Acc) ->
 % Резерв
 % Локальная CRC (сумма всех байтов пакета, младший разряд)
 
--spec point_to_doc(binary()) -> {ok, map()}.
+-spec point_to_doc(binary()) -> map:map().
 point_to_doc(<<255, 16#F5,
     FSOURCE,
     SATS,
@@ -703,7 +703,7 @@ datetime_to_unixtime(Datetime) ->
     16#2e93, 16#3eb2, 16#0ed1, 16#1ef0
 ]).
 
--spec crc(binary()) -> {ok, non_neg_integer()}.
+-spec crc(binary()) -> non_neg_integer().
 crc(List) ->
    crc(List, 16#0000).
 

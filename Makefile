@@ -17,7 +17,10 @@ ERLC_OPTS += +'{parse_transform, lager_transform}'
 # COMPILE_FIRST = cowboy_middleware cowboy_sub_protocol
 CT_OPTS += -spec test.spec -cover test/cover.spec -erl_args -config test/test.config
 # CT_OPTS += -erl_args -config test/test.config
-PLT_APPS = crypto public_key ssl
+PLT_APPS = crypto public_key ssl lager
+# Also dialyze the tests.
+# DIALYZER_OPTS := -I include test/uffda -Werror_handling -Wrace_conditions -Wunmatched_returns
+# DIALYZER_OPTS += --src -r test
 
 # Dependencies.
 
@@ -40,10 +43,15 @@ DEP_PLUGINS = elvis_mk
 
 dep_elvis_mk = git https://github.com/inaka/elvis.mk.git 1.0.0
 
+
+# EDOC_DIRS := ["src", "examples", "test/uffda", "test/test_commons"]
+# EDOC_OPTS := {preprocess, true}, {source_path, ${EDOC_DIRS}}, nopackages, {subpackages, true}
+
 include erlang.mk
 
-# Also dialyze the tests.
-# DIALYZER_OPTS += --src -r test
+dialyze-filtered:
+	dialyzer --no_native `$(call erlang,$(call filter_opts.erl,$(ERLC_OPTS)))` $(DIALYZER_DIRS) $(DIALYZER_OPTS) \
+	| fgrep --invert-match --file .dialyzer.ignore
 
 test-shell: app
 	erl -pa ebin -pa deps/*/ebin -pa test -s navipoint -config test/test.config
