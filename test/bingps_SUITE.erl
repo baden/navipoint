@@ -88,7 +88,7 @@ e1(Config) ->
 
   Skey = base64:encode(?config(imei, Config)),
   {ok, _FakeE1Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
-  ct:pal("FakeE1Packet = ~p~n", [_FakeE1Packet]),
+  % ct:pal("FakeE1Packet = ~p~n", [_FakeE1Packet]),
 
   #{dynamic := #{
       alt  := <<"GSM6CELL">>,
@@ -128,7 +128,7 @@ e2(Config) ->
     Longitude:32/little-unsigned-integer,
     0:(16*8)/little-unsigned-integer>>,
 
-    ct:pal("FakeE2Packet = ~p~n", [FakeE2Packet]),
+    % ct:pal("FakeE2Packet = ~p~n", [FakeE2Packet]),
     CRC = helper:crc(FakeE2Packet),
     Body = <<FakeE2Packet/binary, CRC:16/little-unsigned-integer>>,
     Extra = #{
@@ -202,9 +202,9 @@ e3(Config) ->
 
     Skey = base64:encode(?config(imei, Config)),
     {ok, _FakeE3Packet} = navidb:get_geos(Skey, Datetime div 3600, (Datetime div 3600) + 1),
-    ct:pal("FakeE3Packet = ~p~n", [_FakeE3Packet]),
+    % ct:pal("FakeE3Packet = ~p~n", [_FakeE3Packet]),
 
-    ct:pal("Get = ~p", [navidb:get(systems, Skey)]),
+    % ct:pal("Get = ~p", [navidb:get(systems, Skey)]),
 
     #{dynamic := #{
         alt  := <<"GSM6CELL">>,
@@ -227,28 +227,28 @@ e3(Config) ->
 
 cclk(Config) ->
     {200, _, Resp} = helper:get(Config, "/bingps", #{cmd => <<"CCLK">>}),
-    ct:pal("Resp = ~p", [Resp]),
+    % ct:pal("Resp = ~p", [Resp]),
     {match, [Year, Month, Day, Hour, Minutes, Seconds]} = re:run(
         Resp,
         "^CCLK: (\\d\\d)\\/(\\d\\d)\\/(\\d\\d),(\\d\\d):(\\d\\d):(\\d\\d)\\+00$",
         [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
     ),
-    ct:pal("Year = ~p, Month = ~p, Day = ~p, Hour = ~p, Minutes = ~p, Seconds = ~p", [Year, Month, Day, Hour, Minutes, Seconds]),
+    % ct:pal("Year = ~p, Month = ~p, Day = ~p, Hour = ~p, Minutes = ~p, Seconds = ~p", [Year, Month, Day, Hour, Minutes, Seconds]),
     {match, [Dt]} = re:run(
         Resp,
         "^DT: ([0-9A-Za-z]{8})$",
         [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
     ),
-    ct:pal("Dt = ~p", [Dt]),
+    % ct:pal("Dt = ~p", [Dt]),
     {match, [CCLK]} = re:run(
         Resp,
         "^CCLK: (.+)$",
         [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
     ),
-    ct:pal("CCLK = ~p", [CCLK]),
+    % ct:pal("CCLK = ~p", [CCLK]),
     Dt1 = erlang:list_to_integer(Dt, 16),
     Expect = ec_date:format("y/m/d,H:i:s\\+\\0\\0", {Dt1 div 1000000, Dt1 rem 1000000, 0}),
-    ct:pal("Expect = ~p", [Expect]),
+    % ct:pal("Expect = ~p", [Expect]),
     ?assertEqual(CCLK, Expect),
     ok.
 

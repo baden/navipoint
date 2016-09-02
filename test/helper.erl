@@ -53,7 +53,7 @@ get(Config, Url, Params) ->
         {response, fin, Status, RespHeaders} ->
             {Status, RespHeaders, <<"">>};
         Other ->
-            ct:pal("Other = ~p", [Other]),
+            % ct:pal("Other = ~p", [Other]),
             Other
     end,
     gun:close(ConnPid),
@@ -86,7 +86,7 @@ post(Config, Url, Params, Payload) ->
         {response, fin, Status, RespHeaders} ->
             {Status, RespHeaders, <<"">>};
         Other ->
-            ct:pal("Other = ~p", [Other]),
+            % ct:pal("Other = ~p", [Other]),
             Other
 
     end,
