@@ -612,7 +612,7 @@ convert(<<16#FF, 16#F2,
     % ?INFO("DATETIME = ~p", [DATETIME]),
     % TODO! Добавить проверку LCRC после реализакии в трекерах
     % ?INFO("ADC_LSB = ~w", [ADC_LSB]),
-    LATITUDE1 = (LAT1 * 60 + LAT2) * 10000 + LAT3 * 100 + LAT4,
+    LATITUDE1  = (LAT1 * 60 + LAT2) * 10000 + LAT3 * 100 + LAT4,
     LONGITIDE1 = (LON1 * 60 + LON2) * 10000 + LON3 * 100 + LON4,
 
     LATITUDE = case NS of

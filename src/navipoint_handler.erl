@@ -1,11 +1,17 @@
 %% -*- coding: utf-8 -*-
 -module(navipoint_handler).
 
+% -behaviour(navipoint_sub_protocol).
+
 -export([
         upgrade/6
     ]).
 
 -export([terminate/3]).
+
+-callback init(any(), any()) -> {atom(), any(), any()}.
+-callback get(map:map()) -> map:map().
+-callback post(binary(), map:map()) -> map:map().
 
 -spec upgrade(_Req, _Env, _Handler, _HandlerState, infinity, run) -> {ok, any(), any()}.
 upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
@@ -84,7 +90,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                 StackTrace = erlang:get_stacktrace(),
                 io:format("Backtrace = ~p~n", [StackTrace]),
                 {Module, Fun, _, _} = hd(StackTrace),
-                CriticalRespBody = criticalBody(Class, Reason, Module, Fun),
+                CriticalRespBody = critical_body(Class, Reason, Module, Fun),
                 lager:error("Error ~p at ~p", [Reason, Class]),
                 cowboy_req:reply(500, [
                     {<<"content-type">>, <<"application/octet-stream">>}
@@ -96,7 +102,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
             {ok, Req4, Env}
     end.
 
-criticalBody(Class, Reason, Module, Fun) ->
+critical_body(Class, Reason, Module, Fun) ->
     erlang:list_to_binary(io_lib:format("Internal error: ~p:~p @ ~p:~p~n", [Class, Reason, Module, Fun])).
 
 handle(<<"GET">>, Handler, _Req, State) ->
