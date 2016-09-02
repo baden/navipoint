@@ -20,12 +20,15 @@
 %% Application callbacks
 %% ===================================================================
 
+-spec start(_,_) -> pid().
 start(_StartType, _StartArgs) ->
     navipoint_sup:start_link().
 
+-spec stop(_) -> ok.
 stop(_State) ->
     ok.
 
+-spec start_phase(listen, _, _) -> ok.
 start_phase(listen, _Type, _Args) ->
     % {ok, Point}  = application:get_env(erlnavicc, point),
 

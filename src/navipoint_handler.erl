@@ -7,6 +7,7 @@
 
 -export([terminate/3]).
 
+-spec upgrade(_Req, _Env, _Handler, _HandlerState, infinity, run) -> {ok, any(), any()}.
 upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     navistats:notify(point, {inc, 1}),
     navistats:notify(point_meter, 1),
@@ -110,6 +111,7 @@ commands(Body, #{skey := Skey}) ->
             Body
     end.
 
+-spec terminate(_, _, _) -> ok.
 terminate(_Reason, _Req, _State) ->
     ok.
 

@@ -3,9 +3,11 @@
 
 -export([init/2, post/2]).
 
+-spec init(any(), any()) -> {atom(), any(), any()}.
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
+-spec post(binary(), map:map()) -> map:map().
 post(Body, #{skey := Skey, params := Query}) ->
     Lines = string:tokens(binary_to_list(Body), "\r\n"),
     Parced = lists:foldl(

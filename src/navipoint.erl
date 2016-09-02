@@ -20,7 +20,8 @@
 
 %% @spec start() -> ok
 %% @doc Start the pymwyfa_web server.
-% Manual start over -s erlnavicc
+% Manual start over -s navipoint
+-spec start() -> ok.
 start() ->
   application:load(navipoint),
 
@@ -31,6 +32,7 @@ start() ->
 
 %% @spec stop() -> ok
 %% @doc Stop the pymwyfa_web server.
+-spec stop() -> ok | {error, term()}.
 stop() ->
   Res = application:stop(navipoint),
   Res.
@@ -45,6 +47,7 @@ stop() ->
 % Аккумулятор одного часа
 % Общий аккумулятор для функций update
 
+-spec parse(binary()) -> {ok, list(), dict:dict()}.
 parse(Bin) when is_binary(Bin) ->
     parse(Bin, undefined, [], dict:new()).
 
@@ -207,6 +210,7 @@ parse(<<>>, Last, [], Acc) ->
 % Получение записи из бинарного пакета.
 % Применяется для получения JSON-ответа для поля dynamic
 %
+-spec point_to_doc(binary()) -> {ok, map()}.
 point_to_doc(<<255, 16#F5,          % Пакет 0xF5
     FSOURCE,                                % Тип точки. Причина фиксации точки (младшие 6 бит), бит7 - фиксация без активных спутников.
     SATS,                                   % Кол-во спутников 3..12
@@ -546,6 +550,7 @@ datetime_to_unixtime(Datetime) ->
     16#2e93, 16#3eb2, 16#0ed1, 16#1ef0
 ]).
 
+-spec crc(binary()) -> {ok, non_neg_integer()}.
 crc(List) ->
    crc(List,16#0000).
 
@@ -574,6 +579,7 @@ crc_index(N) ->
 %%====================================================================
 
 
+-spec iso_8601_fmt(non_neg_integer()) -> string().
 iso_8601_fmt(DateTime) ->
     {{Year,Month,Day},{Hour,Min,Sec}} = timestamp_to_datetime(DateTime),
     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B ~2.10.0B:~2.10.0B:~2.10.0B",

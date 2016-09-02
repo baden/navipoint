@@ -3,11 +3,13 @@
 
 -export([init/2, get/1, post/2]).
 
+-spec init(any(), any()) -> {atom(), any(), any()}.
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
 % Возвращает текущие дату и время в формате, пригодном для установки
 % часов в SIM900 через AT+CCLK="yy/MM/dd,hh:mm:ss[+-]zz"
+-spec get(map:map()) -> map:map().
 get(#{params := #{<<"cmd">> := <<"CCLK">>}} = _Query) ->
     % DateTime = os:timestamp(),
     {A, B, _} = Now = os:timestamp(),
@@ -23,6 +25,7 @@ get(#{params := #{<<"cmd">> := <<"CCLK">>}} = _Query) ->
 
     #{response => RespBody, nocommands => true}.
 
+-spec post(binary(), map:map()) -> map:map().
 post(Body, #{skey := Skey}) ->
     repr(parsebingps(Skey, Body)).
 

@@ -22,6 +22,7 @@
 %% API functions
 %%====================================================================
 
+-spec start_link() -> pid().
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
@@ -30,6 +31,8 @@ start_link() ->
 %%====================================================================
 
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
+% TODO: Why 0, 1 ???
+-spec init([]) -> {ok, {{supervisor:strategy(), 0, 1}, [supervisor:child_spec()]}}.
 init([]) ->
     {ok,
      { {one_for_all, 0, 1},

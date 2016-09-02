@@ -9,20 +9,24 @@
 
 % -include("types.hrl").
 
+-spec init(Req, State) -> {atom(), Req, State}.
 init(Req, Opts) ->
     {cowboy_rest, Req, Opts}.
 
+-spec options(any(), any()) -> {ok, any(), any()}.
 options(Req, State) ->
     Req1 = cowboy_req:set_resp_header(<<"Access-Control-Allow-Methods">>, <<"GET, OPTIONS">>, Req),
     Req2 = cowboy_req:set_resp_header(<<"Access-Control-Allow-Origin">>, <<"*">>, Req1),
     {ok, Req2, State}.
 
+-spec content_types_provided(any(), any()) -> {proplists:proplists(), any(), any()}.
 content_types_provided(Req, State) ->
     {[
         {<<"text/html">>, hello_to_html},
         {<<"application/json">>, hello_to_json}
     ], Req, State}.
 
+-spec hello_to_html(any(), any()) -> {binary(), any(), any()}.
 hello_to_html(Req, State) ->
     Durations = list_to_binary([
         io_lib:format("['1', ~p],", [I]) ||
@@ -96,6 +100,7 @@ hello_to_html(Req, State) ->
 metric(Name, Value) ->
     list_to_binary(io_lib:format("<tr><td>~p</td><td><pre>~p</pre></td></tr>", [Name, Value])).
 
+-spec hello_to_json(any(), any()) -> {binary()|string(), any(), any()}.
 hello_to_json(Req, State) ->
     Req1 = cowboy_req:set_resp_header(<<"Access-Control-Allow-Origin">>, <<"*">>, Req),
 

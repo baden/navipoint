@@ -131,7 +131,7 @@ hex_char(C) when C < 10 -> $0 + C;
 hex_char(C) when C < 16 -> $A + C - 10.
 
 random_string() ->
-    base64:encode(crypto:rand_bytes(16)).
+    base64:encode(crypto:strong_rand_bytes(16)).
 
 -define(CRC16_CCITT_table, [
     16#0000, 16#1021, 16#2042, 16#3063, 16#4084, 16#50a5, 16#60c6, 16#70e7, 16#8108, 16#9129, 16#a14a, 16#b16b,

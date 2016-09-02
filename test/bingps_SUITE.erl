@@ -228,12 +228,13 @@ e3(Config) ->
 cclk(Config) ->
     {200, _, Resp} = helper:get(Config, "/bingps", #{cmd => <<"CCLK">>}),
     % ct:pal("Resp = ~p", [Resp]),
+    % TODO: Define or check Year, Month, Day, Hour, Minutes, Seconds
     {match, [Year, Month, Day, Hour, Minutes, Seconds]} = re:run(
         Resp,
         "^CCLK: (\\d\\d)\\/(\\d\\d)\\/(\\d\\d),(\\d\\d):(\\d\\d):(\\d\\d)\\+00$",
         [multiline, {newline, anycrlf}, {capture, all_but_first, list}]
     ),
-    % ct:pal("Year = ~p, Month = ~p, Day = ~p, Hour = ~p, Minutes = ~p, Seconds = ~p", [Year, Month, Day, Hour, Minutes, Seconds]),
+    ct:pal("Year = ~p, Month = ~p, Day = ~p, Hour = ~p, Minutes = ~p, Seconds = ~p", [Year, Month, Day, Hour, Minutes, Seconds]),
     {match, [Dt]} = re:run(
         Resp,
         "^DT: ([0-9A-Za-z]{8})$",
@@ -248,7 +249,7 @@ cclk(Config) ->
     % ct:pal("CCLK = ~p", [CCLK]),
     Dt1 = erlang:list_to_integer(Dt, 16),
     Expect = ec_date:format("y/m/d,H:i:s\\+\\0\\0", {Dt1 div 1000000, Dt1 rem 1000000, 0}),
-    % ct:pal("Expect = ~p", [Expect]),
+    ct:pal("Expect = ~p", [Expect]),
     ?assertEqual(CCLK, Expect),
     ok.
 

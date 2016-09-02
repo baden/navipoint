@@ -3,9 +3,11 @@
 
 -export([init/2, get/1]).
 
+-spec init(any(), any()) -> {atom(), any(), any()}.
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
+-spec get(map:map()) -> map:map().
 get(#{skey := Skey, params := Params}) ->
     Command = maps:get(<<"cmd">>, Params),
     RespBody = get(Skey, Command),
