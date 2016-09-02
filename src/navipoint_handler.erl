@@ -34,7 +34,12 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
     % Все входящие сообщения должны содержать параметр imei. Иначе отбой соединения
     case maps:get(<<"imei">>, Query, undefined) of
         undefined ->
-            {ok, Req4} = cowboy_req:reply(500, [{<<"content-type">>, <<"application/octet-stream">>}], <<"ERROR: imei query must be defined">>, cors(Req)),
+            {ok, Req4} = cowboy_req:reply(
+              500,
+              [{<<"content-type">>, <<"application/octet-stream">>}],
+              <<"ERROR: imei query must be defined">>,
+              cors(Req)
+            ),
             {ok, Req4, Env};
         Imei ->
             Skey = base64:encode(Imei),
@@ -79,7 +84,7 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
                 StackTrace = erlang:get_stacktrace(),
                 io:format("Backtrace = ~p~n", [StackTrace]),
                 {Module, Fun, _, _} = hd(StackTrace),
-                CriticalRespBody = erlang:list_to_binary(io_lib:format("Internal error: ~p:~p @ ~p:~p~n", [Class, Reason, Module, Fun])),
+                CriticalRespBody = criticalBody(Class, Reason, Module, Fun),
                 lager:error("Error ~p at ~p", [Reason, Class]),
                 cowboy_req:reply(500, [
                     {<<"content-type">>, <<"application/octet-stream">>}
@@ -90,6 +95,9 @@ upgrade(Req, Env, Handler, _HandlerState, infinity, run) ->
 
             {ok, Req4, Env}
     end.
+
+criticalBody(Class, Reason, Module, Fun) ->
+    erlang:list_to_binary(io_lib:format("Internal error: ~p:~p @ ~p:~p~n", [Class, Reason, Module, Fun])).
 
 handle(<<"GET">>, Handler, _Req, State) ->
     Handler:get(State);
@@ -117,7 +125,11 @@ terminate(_Reason, _Req, _State) ->
 
 cors(Req) ->
     cowboy_req:set_resp_header(<<"Access-Control-Allow-Origin">>, <<"*">>,
-    cowboy_req:set_resp_header(<<"Access-Control-Allow-Headers">>, <<"Authorization, Content-Type, X-Requested-With, Content-Length">>, Req)).
+        cowboy_req:set_resp_header(
+            <<"Access-Control-Allow-Headers">>,
+            <<"Authorization, Content-Type, X-Requested-With, Content-Length">>, Req
+        )
+    ).
 
 unixtime() ->
         {A, B, _} = os:timestamp(),

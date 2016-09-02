@@ -18,3 +18,4 @@ Mnesia*
 stats/
 .erlang.mk/
 xrefr
+elvis

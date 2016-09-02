@@ -5,7 +5,9 @@
 -export([xref/1]).
 
 -spec all() -> [xref].
-all() -> [xref].
+all() -> [
+    % xref
+].
 
 -spec xref(lsl_test_utils:config()) -> {comment, []}.
 xref(_Config) ->

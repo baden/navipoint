@@ -17,8 +17,10 @@
 ## Стоит посмотреть на другие плагины erlang.mk
 
 - https://erlang.mk/guide/plugins_list.html
+- https://github.com/bullno1/reload.mk/tree/b51d89654a140679aeb07190670642243d3974e4
 
 ## Найти lint
 
 - https://atom.io/packages/linter-erlang
 - https://atom.io/packages/linter-erlc
+- https://github.com/inaka/elvis

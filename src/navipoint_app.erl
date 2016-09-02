@@ -20,7 +20,7 @@
 %% Application callbacks
 %% ===================================================================
 
--spec start(_,_) -> pid().
+-spec start(_, _) -> pid().
 start(_StartType, _StartArgs) ->
     navipoint_sup:start_link().
 

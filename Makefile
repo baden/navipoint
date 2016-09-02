@@ -33,6 +33,13 @@ dep_navidb = git git://github.com/baden/navidb.git master
 dep_navistats = git git://github.com/baden/navistats.git master
 dep_erlware_commons = git https://github.com/erlware/erlware_commons.git master
 
+BUILD_DEPS = elvis_mk
+DEP_PLUGINS = elvis_mk
+# ESCRIPT_NAME = fprof_totals_cli
+# ESCRIPT_FILE = fproftotals
+
+dep_elvis_mk = git https://github.com/inaka/elvis.mk.git 1.0.0
+
 include erlang.mk
 
 # Also dialyze the tests.
