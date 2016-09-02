@@ -55,7 +55,7 @@ post_version_of_addlog_method(Config) ->
     ok.
 
 cyrillic_addlog_test(Config) ->
-    Text = <<"Текст на русском и не только ."/utf8>>,
+    Text = <<"Текст на русском и не только 🤘🐱🌧☠."/utf8>>,
 
     {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Config, "/addlog", #{text => Text}),
 
