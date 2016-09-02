@@ -9,33 +9,33 @@
 -module(navipoint).
 
 %% API
--export([start/0, stop/0]).
+% -export([start/0, stop/0]).
 
 %%====================================================================
 %% API
 %%====================================================================
 
 -export([point_to_doc/1, parse/1, crc/1]).
--export([iso_8601_fmt/1]).
+% -export([iso_8601_fmt/1]).
 
 %% @spec start() -> ok
 %% @doc Start the pymwyfa_web server.
 % Manual start over -s navipoint
--spec start() -> ok.
-start() ->
-  application:load(navipoint),
-
-  {ok, Apps} = application:get_key(navipoint, applications),
-  [application:ensure_all_started(App) || App <- Apps],
-  ok = application:start(navipoint),
-  ok.
+% -spec start() -> ok.
+% start() ->
+%   application:load(navipoint),
+%
+%   {ok, Apps} = application:get_key(navipoint, applications),
+%   [application:ensure_all_started(App) || App <- Apps],
+%   ok = application:start(navipoint),
+%   ok.
 
 %% @spec stop() -> ok
 %% @doc Stop the pymwyfa_web server.
--spec stop() -> ok | {error, term()}.
-stop() ->
-  Res = application:stop(navipoint),
-  Res.
+% -spec stop() -> ok | {error, term()}.
+% stop() ->
+%   Res = application:stop(navipoint),
+%   Res.
 
 % a = 123l;
 
@@ -579,11 +579,11 @@ crc_index(N) ->
 %%====================================================================
 
 
--spec iso_8601_fmt(non_neg_integer()) -> string().
-iso_8601_fmt(DateTime) ->
-    {{Year,Month,Day},{Hour,Min,Sec}} = timestamp_to_datetime(DateTime),
-    lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B ~2.10.0B:~2.10.0B:~2.10.0B",
-        [Year, Month, Day, Hour, Min, Sec])).
-
-timestamp_to_datetime(T) ->
-    calendar:now_to_universal_time({T div 1000000,T rem 1000000,0}).
+% -spec iso_8601_fmt(non_neg_integer()) -> string().
+% iso_8601_fmt(DateTime) ->
+%     {{Year,Month,Day},{Hour,Min,Sec}} = timestamp_to_datetime(DateTime),
+%     lists:flatten(io_lib:format("~4.10.0B-~2.10.0B-~2.10.0B ~2.10.0B:~2.10.0B:~2.10.0B",
+%         [Year, Month, Day, Hour, Min, Sec])).
+%
+% timestamp_to_datetime(T) ->
+%     calendar:now_to_universal_time({T div 1000000,T rem 1000000,0}).

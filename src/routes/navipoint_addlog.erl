@@ -7,6 +7,7 @@
 init(Req, Opts) ->
     {navipoint_handler, Req, Opts}.
 
+-compile([{nowarn_unused_function, [{ get,1 }]}]).
 -spec get(map:map()) -> map:map().
 get(#{skey := Skey, params := Params} = _Query) ->
     Text = maps:get(<<"text">>, Params, undefined),
