@@ -5,7 +5,10 @@
     {id, "git"},
     {modules, []},
     {registered, [navipoint_sup]},
-    {applications, [kernel, stdlib, cowboy, navidb, navistats]},
+    {applications, [
+        kernel, stdlib,
+        inets, % for http_uri
+        cowboy, navidb, navistats]},
     {mod, {navipoint_app, []}},
     {env, [
     ]},

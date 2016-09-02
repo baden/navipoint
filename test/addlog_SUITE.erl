@@ -1,3 +1,4 @@
+%% -*- coding: utf-8 -*-
 -module(addlog_SUITE).
 
 -include_lib("common_test/include/ct.hrl").
@@ -8,7 +9,14 @@
 suite() ->
     [{timetrap,{minutes,1}}].
 
-all() -> [ test1, post_version_of_addlog_method, hwid, balance ].
+all() -> [
+    test1,
+    post_version_of_addlog_method,
+    cyrillic_addlog_test,
+    strange_imei_addlog_test,
+    hwid,
+    balance
+].
 
 % -define(POINT_PORT, 8981).
 
@@ -35,11 +43,37 @@ test1(Config) ->
     ok.
 
 post_version_of_addlog_method(Config) ->
-    Text = helper:random_string(),
-    {200, _, <<"ADDLOG: OK\r\n">>} = helper:post(Config, "/addlog", #{}, Text),
+    % Text = list_to_binary(helper:url_encode(helper:random_string())),
+    Text = <<"Что, суки, не ждали?"/utf8>>,
+    TextEncoded = list_to_binary(helper:url_encode(Text)),
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:post(Config, "/addlog", #{}, TextEncoded),
 
     Skey = base64:encode(?config(imei, Config)),
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+
+    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ok.
+
+cyrillic_addlog_test(Config) ->
+    Text = <<"Текст на русском и не только ."/utf8>>,
+
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Config, "/addlog", #{text => Text}),
+
+    Skey = base64:encode(?config(imei, Config)),
+    [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ok.
+
+strange_imei_addlog_test(ConfigBase) ->
+    Text = <<"Тест для нестандартного IMEI."/utf8>>,
+
+    Imei = <<"123+123">>,
+    Config = [{imei, Imei} | ConfigBase],
+
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Config, "/addlog", #{text => Text}),
+
+    Skey = base64:encode(?config(imei, Config)),
+    [Doc|_] = navidb:get_logs(Skey, 20, 100000000000),
     ?assertMatch(#{system := Skey, text := Text}, Doc),
     ok.
 

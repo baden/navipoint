@@ -13,7 +13,9 @@ get(#{skey := Skey, params := Params} = _Query) ->
 
 post(Body, #{skey := Skey, params := Params}) ->
     MType = maps:get(<<"mtype">>, Params, undefined),
-    addlog(Skey, MType, Body, Params).
+    % TODO: require inets module
+    Text = list_to_binary(http_uri:decode(binary_to_list(Body))),
+    addlog(Skey, MType, Text, Params).
 
 addlog(Skey, <<"balance">>, _Text, Params) ->
     PValue = maps:get(<<"value">>, Params, <<"0">>),

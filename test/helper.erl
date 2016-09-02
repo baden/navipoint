@@ -3,6 +3,7 @@
 -include_lib("common_test/include/ct.hrl").
 
 -export([start/1, stop/1, get/3, post/4, random_string/0, crc/1]).
+-export([url_encode/1]).
 
 -define(APP, navipoint).
 % -define(PORT, 8981).
@@ -65,7 +66,7 @@ post(Config, Url, Params, Payload) ->
     Headers = [
         {<<"content-type">>, <<"application/octet-stream">>}
     ],
-    Path = Url ++ "?imei=" ++ url_encode(binary_to_list(Imei)) ++
+    Path = Url ++ "?imei=" ++ url_encode(Imei) ++
      lists:flatten(maps:fold(
         fun(Key, Value, Acc) ->
             Element = "&" ++ atom_to_list(Key) ++ "=" ++ url_encode(Value),
@@ -95,11 +96,39 @@ post(Config, Url, Params, Payload) ->
 url_encode(Data) when is_integer(Data) ->
     url_encode(integer_to_list(Data));
 
-url_encode(Data) when is_binary(Data) ->
-    url_encode(binary_to_list(Data));
+url_encode(Binary) when is_binary(Binary) ->
+    url_encode(binary_to_list(Binary));
 
-url_encode(Data) ->
-    edoc_lib:escape_uri(Data).
+url_encode(String) when is_list(String )->
+    url_encode(String, []).
+
+url_encode([], Accum) ->
+    lists:reverse(Accum);
+
+% TODO: Тут не хватает проверки символов с кодами больше 255
+% Хотя функция и так валится в hex_char
+url_encode([Char | String], Accum)
+    when Char =< 32; Char > 127;
+        Char == $"; Char == $#;
+        Char == $$; Char == $%;
+        Char == $&; Char == $+;
+        Char == $,; Char == $/;
+        Char == $:; Char == $;;
+        Char == $<; Char == $=;
+        Char == $>; Char == $?;
+        Char == $@; Char == $[;
+        Char == $\\; Char == $];
+        Char == $^; Char == $`;
+        Char == ${; Char == $|;
+        Char == $} ->
+    url_encode(String, [hex_char(Char rem 16), hex_char(Char div 16), $% | Accum]);
+
+url_encode([Char | String], Accum)
+    when Char >= 0, Char =< 255 ->
+        url_encode(String, [Char | Accum]).
+
+hex_char(C) when C < 10 -> $0 + C;
+hex_char(C) when C < 16 -> $A + C - 10.
 
 random_string() ->
     base64:encode(crypto:rand_bytes(16)).
