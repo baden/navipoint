@@ -5,13 +5,12 @@ PROJECT = navipoint
 
 # Options.
 # -Werror
-# ERLC_OPTS ?= +debug_info +warn_export_all +warn_export_vars \
-# 	+warn_shadow_vars +warn_obsolete_guard +warn_missing_spec \
-# 	+'{parse_transform, lager_transform}'
 
-ERLC_OPTS := +warn_unused_vars +warn_export_all +warn_shadow_vars +warn_unused_import +warn_unused_function
-ERLC_OPTS += +warn_bif_clash +warn_unused_record +warn_deprecated_function +warn_obsolete_guard +strict_validation
-ERLC_OPTS += +warn_export_vars +warn_exported_vars +warn_missing_spec +warn_untyped_record +debug_info
+ERLC_OPTS := +warn_unused_vars +warn_export_all +warn_shadow_vars
+ERLC_OPTS += +warn_unused_import +warn_unused_function +warn_bif_clash
+ERLC_OPTS += +warn_unused_record +warn_deprecated_function +warn_obsolete_guard
+ERLC_OPTS += +strict_validation +warn_export_vars +warn_exported_vars
+ERLC_OPTS += +warn_missing_spec +warn_untyped_record +debug_info
 ERLC_OPTS += +'{parse_transform, lager_transform}'
 
 # COMPILE_FIRST = cowboy_middleware cowboy_sub_protocol
@@ -44,8 +43,8 @@ DEP_PLUGINS = elvis_mk
 dep_elvis_mk = git https://github.com/inaka/elvis.mk.git 1.0.0
 
 
-# EDOC_DIRS := ["src", "examples", "test/uffda", "test/test_commons"]
-# EDOC_OPTS := {preprocess, true}, {source_path, ${EDOC_DIRS}}, nopackages, {subpackages, true}
+EDOC_DIRS := ["src"]
+EDOC_OPTS := {preprocess, true}, {source_path, ${EDOC_DIRS}}, nopackages, {subpackages, true}
 
 include erlang.mk
 

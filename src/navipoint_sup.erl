@@ -2,7 +2,6 @@
 %%%-------------------------------------------------------------------
 %% @copyright Denis Batrak
 %% @author Batrak Denis <baden.i.ua@gmail.com>
-%% @version {@vsn}, {@date} {@time}
 %% @doc NaviCC GPS data collector
 %% @end
 %%%-------------------------------------------------------------------

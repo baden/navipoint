@@ -39,3 +39,9 @@ make elvis
 make tests
 # make xref
 ```
+
+## Documentation
+
+```shell
+make docs
+```

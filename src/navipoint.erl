@@ -1,12 +1,20 @@
 %% -*- coding: utf-8 -*-
-%%%-------------------------------------------------------------------
-%% @copyright Denis Batrak
-%% @author Batrak Denis <baden.i.ua@gmail.com>
-%% @version {@vsn}, {@date} {@time}
-%% @doc ErlNaviCC tracker point
-%% @end
-%%%-------------------------------------------------------------------
+%%% @author Denis Batrak <baden.i.ua@gmail.com>
+%%%  [http://batrak.net/]
+%%% @doc NaviPoint, as a module, provides access to the high-level functionality
+%%% contained in the NaviCC application.
+%%%
+%%% It has functions in two main categories:
+%%% <dl>
+%%%     <dt>1. Утилиты</dt>
+%%%     <dd>{@link parse/1} Преобразование пакетов.
+%%%     </dd>
+%%% </dl>
+%%% @end
+%%% @todo Testing TODO notes.
 -module(navipoint).
+
+-vsn("{{version}}").
 
 %% API
 % -export([start/0, stop/0]).
@@ -18,8 +26,6 @@
 -export([point_to_doc/1, parse/1, crc/1]).
 % -export([iso_8601_fmt/1]).
 
-%% @spec start() -> ok
-%% @doc Start the pymwyfa_web server.
 % Manual start over -s navipoint
 % -spec start() -> ok.
 % start() ->
@@ -30,8 +36,6 @@
 %   ok = application:start(navipoint),
 %   ok.
 
-%% @spec stop() -> ok
-%% @doc Stop the pymwyfa_web server.
 % -spec stop() -> ok | {error, term()}.
 % stop() ->
 %   Res = application:stop(navipoint),
