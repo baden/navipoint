@@ -54,3 +54,6 @@ dialyze-filtered:
 
 test-shell: app
 	erl -pa ebin -pa deps/*/ebin -pa test -s navipoint -config test/test.config
+
+typer::
+	typer $(DIALYZER_PLT) -r src

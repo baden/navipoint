@@ -33,3 +33,5 @@ navipoint_params.erl:42: The call navidb:get('params',{'id',_}) breaks the contr
 - https://atom.io/packages/linter-erlang
 - https://atom.io/packages/linter-erlc
 - https://github.com/inaka/elvis
+
+## Typer
