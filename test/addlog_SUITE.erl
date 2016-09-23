@@ -14,7 +14,7 @@ all() -> [
     post_version_of_addlog_method,
     cyrillic_addlog_test,
     strange_imei_addlog_test,
-    hwid,
+    hwid, hwid2,
     balance
 ].
 
@@ -88,6 +88,18 @@ hwid(Config) ->
     System = navidb:get(systems, {id, Skey}),
     ?assertMatch(#{hwid := <<"3081">>, swid := <<"302E">>}, System),
     ok.
+
+hwid2(Config) ->
+    Text = <<"Трекер 6001-05 включён. HWID:<b>6001-05</b> SWID:<b>1.2.2-wip_debug</b>. Режим: <b>Beacon</b>"/utf8>>,
+    {200, _, <<"ADDLOG: OK\r\n">>} = helper:get(Config, "/addlog", #{text => Text}),
+
+    Skey = base64:encode(?config(imei, Config)),
+    % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
+    % ?assertMatch(#{system := Skey, text := Text}, Doc),
+    System = navidb:get(systems, {id, Skey}),
+    ?assertMatch(#{hwid := <<"6001-05">>, swid := <<"1.2.2-wip_debug">>}, System),
+    ok.
+
 
 balance(Config) ->
     Payload = #{

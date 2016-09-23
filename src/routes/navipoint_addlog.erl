@@ -60,7 +60,7 @@ addlog(Skey, _MType, Text, _Params) ->
 catchId(Text) ->
     % Образес сообщения с версией:
     % "Test message. Version line HWID:<b>3081</b> SWID:<b>302E</b>"
-    {ok, RE_ID} = re:compile("HWID:<b>([0-9A-Z]+)</b>.*SWID:<b>([0-9A-Z]+)</b>"),
+    {ok, RE_ID} = re:compile("HWID:<b>([^<]+)<\\/b>.*SWID:<b>([^<]+)<\\/b>"),
 
     case re:run(Text, RE_ID, [{capture, [1,2], list}]) of
         {match, [HWID, SWID]} ->
