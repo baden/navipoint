@@ -8,6 +8,7 @@ script: "sleep 4 && make tests"
 branches:
   only:
     - master
+    - refresh2017
 notifications:
   email:
     - baden.i.ua@gmail.com
