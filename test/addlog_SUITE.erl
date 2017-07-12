@@ -39,7 +39,7 @@ test1(Config) ->
 
     Skey = base64:encode(?config(imei, Config)),
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
-    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ?assertMatch(#{<<"system">> := Skey, <<"text">> := Text}, Doc),
     ok.
 
 post_version_of_addlog_method(Config) ->
@@ -51,7 +51,7 @@ post_version_of_addlog_method(Config) ->
     Skey = base64:encode(?config(imei, Config)),
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
 
-    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ?assertMatch(#{<<"system">> := Skey, <<"text">> := Text}, Doc),
     ok.
 
 cyrillic_addlog_test(Config) ->
@@ -61,7 +61,7 @@ cyrillic_addlog_test(Config) ->
 
     Skey = base64:encode(?config(imei, Config)),
     [Doc] = navidb:get_logs(Skey, 20, 100000000000),
-    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ?assertMatch(#{<<"system">> := Skey, <<"text">> := Text}, Doc),
     ok.
 
 strange_imei_addlog_test(ConfigBase) ->
@@ -74,7 +74,7 @@ strange_imei_addlog_test(ConfigBase) ->
 
     Skey = base64:encode(?config(imei, Config)),
     [Doc|_] = navidb:get_logs(Skey, 20, 100000000000),
-    ?assertMatch(#{system := Skey, text := Text}, Doc),
+    ?assertMatch(#{<<"system">> := Skey, <<"text">> := Text}, Doc),
     ok.
 
 
@@ -86,7 +86,7 @@ hwid(Config) ->
     % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     % ?assertMatch(#{system := Skey, text := Text}, Doc),
     System = navidb:get(systems, {id, Skey}),
-    ?assertMatch(#{hwid := <<"3081">>, swid := <<"302E">>}, System),
+    ?assertMatch(#{<<"hwid">> := <<"3081">>, <<"swid">> := <<"302E">>}, System),
     ok.
 
 hwid2(Config) ->
@@ -97,7 +97,7 @@ hwid2(Config) ->
     % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     % ?assertMatch(#{system := Skey, text := Text}, Doc),
     System = navidb:get(systems, {id, Skey}),
-    ?assertMatch(#{hwid := <<"6001-05">>, swid := <<"1.2.2-wip_debug">>}, System),
+    ?assertMatch(#{<<"hwid">> := <<"6001-05">>, <<"swid">> := <<"1.2.2-wip_debug">>}, System),
     ok.
 
 
@@ -113,5 +113,5 @@ balance(Config) ->
     % [Doc] = navidb:get_logs(Skey, 20, 100000000000),
     % ?assertMatch(#{system := Skey, text := Text}, Doc),
     System = navidb:get(systems, {id, Skey}),
-    ?assertMatch(#{balance := #{value := 20}}, System),
+    ?assertMatch(#{<<"balance">> := #{<<"value">> := 20}}, System),
     ok.

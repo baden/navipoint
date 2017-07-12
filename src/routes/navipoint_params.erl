@@ -22,11 +22,11 @@ get(Skey, <<"params">>) ->
         % #{queue := #{}} ->
         %     navidb:delete_command(Skey),
         %     <<>>;
-        #{queue := Queue} ->
+        #{<<"queue">> := Queue} ->
             maps:fold(
                 fun(Key, Value, Acc) ->
-                    KeyB = atom_to_binary(Key, latin1),
-                    <<"PARAM ", KeyB/binary, " ", Value/binary, "\r\n", Acc/binary>>
+                    % KeyB = atom_to_binary(Key, latin1),
+                    <<"PARAM ", Key/binary, " ", Value/binary, "\r\n", Acc/binary>>
                 end,
                 <<>>,
                 Queue
@@ -46,7 +46,7 @@ get(Skey, <<"confirm">>) ->
         % #{<<"queue">> := #{}} ->
         %     navidb:set(params, Skey, {queue, {}}),
         %     ok;
-        #{queue := Queue} ->
+        #{<<"queue">> := Queue} ->
             % Сформируем запрос вида
             % {$set, {'data.PRARAM.value', VALUE}}
             % Этот метод теперь не работает
@@ -56,14 +56,14 @@ get(Skey, <<"confirm">>) ->
                     % maps:put(<<"data.", (navidb_mongodb:tokey(Key))/binary, ".value">>, Value, Acc)
                     maps:put([data, Key, value], Value, Acc)
                 end,
-                #{queue => #{}},
+                #{<<"queue">> => #{}},
                 Queue
             ),
-            Update = #{'$set' => Doc},
+            Update = #{<<"$set">> => Doc},
             navidb:update(params, Skey, Update);
         % No Queue
         _Other ->
-            navidb:set(params, Skey, #{queue => #{}}),
+            navidb:set(params, Skey, #{<<"queue">> => #{}}),
             ok
     end,
     % Когда улучшим механизм оповещения, можно будет сделать за одну операцию

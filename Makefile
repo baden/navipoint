@@ -31,8 +31,8 @@ TEST_DEPS = gun erlware_commons xref_runner
 #dep_cowboy = git git://github.com/ninenines/cowboy.git 2.0.0-pre.1
 dep_cowboy = git git://github.com/baden/cowboy.git master
 dep_jsxn = git git://github.com/talentdeficit/jsxn.git v2.1.1
-dep_navidb = git git://github.com/baden/navidb.git master
-dep_navistats = git git://github.com/baden/navistats.git master
+dep_navidb = git git://github.com/baden/navidb.git refresh2017
+dep_navistats = git git://github.com/baden/navistats.git refresh2017
 dep_erlware_commons = git https://github.com/erlware/erlware_commons.git master
 
 BUILD_DEPS = elvis_mk
